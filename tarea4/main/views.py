@@ -260,13 +260,15 @@ def adminPOST(id,avatar,email,nombre,contraseña,request):
         datosUsuarios[i].append(usr.horarioFin)
         datosUsuarios[i].append(usr.contraseña)
 
+
         i += 1
     listaDeUsuarios = simplejson.dumps(datosUsuarios, ensure_ascii=False).encode('utf8')
-    hola = "hola"
-    # print(listaDeUsuarios)
+    
+    
+    
 
     # limpiar argumentos de salida segun tipo de vista
-    argumentos = {"nombre":nombre,"id":id,"avatar":avatar,"email":email,"lista":listaDeUsuarios,"numeroUsuarios":numeroUsuarios,"numeroDeComidas":numeroDeComidas,"contraseña":contraseña}
+    argumentos = {"nombre":nombre,"id":id,"avatar":avatar,"email":email,"lista":listaDeUsuarios,"numeroUsuarios":i,"numeroDeComidas":numeroDeComidas,"contraseña":contraseña}
     return render(request, 'main/baseAdmin.html', argumentos)
 
 
@@ -1037,7 +1039,7 @@ def editarUsuario(request):
             return JsonResponse(data)
 
 def registerAdmin(request):
-    tipo = request.POST.get("tipo")
+    tipo = 0
     nombre = request.POST.get("nombre")
     email = request.POST.get("email")
     password = request.POST.get("password")
@@ -1057,16 +1059,8 @@ def registerAdmin(request):
     usuarioNuevo = Usuario(nombre=nombre, email=email, tipo=tipo, contraseña=password, avatar=avatar,
                                formasDePago=formasDePago, horarioIni=horaInicial, horarioFin=horaFinal)
     usuarioNuevo.save()
-    id = request.session['id']
-    email = request.session['email']
-    avatar = request.session['avatar']
-    nombre = request.session['nombre']
-    contraseña = request.session['contraseña']
-    print(id)
-    print(email)
-    print(avatar)
-    print(nombre)
-    return adminPOST(id,avatar,email,nombre,contraseña,request)
+    
+    return loginReq(request)
 
 @csrf_exempt
 def verificarEmail(request):
