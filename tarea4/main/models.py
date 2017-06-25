@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.db import models
 from multiselectfield import MultiSelectField
 from django.utils import timezone
@@ -12,7 +14,7 @@ class Usuario(models.Model):
     tipos = ((0, 'admin'), (1, 'alumno'), (2, 'fijo'), (3, 'ambulante'))
     tipo = models.IntegerField(choices=tipos)
     avatar = models.ImageField(upload_to = 'avatars')
-    contraseña = models.CharField(max_length=200)
+    contrasena = models.CharField(max_length=200)
     activo = models.BooleanField(default=False,blank=True)
     litaFormasDePago = (
         (0, 'Efectivo'),
