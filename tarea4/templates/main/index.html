@@ -10,13 +10,23 @@
           zoom: 19,
           center: beau850
         });
+        var pagos = ['Efectivo', 'Tarjeta de Crédito', 'Tarjeta de Débito', 'Tarjeta Junaeb'];
         infoWindow = new google.maps.InfoWindow;
             {% for vendedor in vendedores %}
                 var info{{ forloop.counter }} = '<div id="content">'+
                     '<div id="siteNotice">'+
                     '</div>'+
-                    '<div><h4>{{ vendedor.username}}</h4></div>'+
+                    '<div><p style="float: left;"><img src="../static/media/{{ vendedor.cliente.avatar }}" width="50" hspace="10"></p>'+
+                    '<h4>{{ vendedor.username}}</h4></div>'+
                     '<div id="bodyContent">'+
+                    '<p><i> Formas de Pago:</i> '+
+                    {% for index in vendedor.cliente.formasDePago %}
+                        {% if forloop.counter != 1 %}
+                            ', '+
+                        {% endif %}
+                        pagos[{{ index }}]+
+                    {% endfor %}
+                    '</p>'+
                     {% if vendedor.cliente.tipo == 2 %}
                         '<p><i>Horario:</i>{{ vendedor.cliente.horarioIni }}-{{ vendedor.cliente.horarioFin }}</p>'+
                     {% endif %}
