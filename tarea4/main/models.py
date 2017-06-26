@@ -8,7 +8,7 @@ from django.contrib.auth.models import User , Group
 
 # Create your models here
 
-class Usuario(models.Model):
+class Cliente(models.Model):
 
     user = models.OneToOneField(
         User,
@@ -35,13 +35,13 @@ class Usuario(models.Model):
     formasDePago = MultiSelectField(choices=litaFormasDePago,null=True,blank=True)
     horarioIni = models.CharField(max_length=200,blank=True,null=True)
     horarioFin = models.CharField(max_length=200,blank=True,null=True)
-    favoritos = models.ManyToManyField("Usuario")
+    favoritos = models.ManyToManyField("Cliente")
 
     def __str__(self):
         return self.nombre
 
     class Meta:
-        db_table = 'usuario'
+        db_table = 'Cliente'
 
 
 
@@ -51,7 +51,7 @@ class Usuario(models.Model):
 
 class Comida(models.Model):
     vendedor = models.ForeignKey(
-        'Usuario',
+        'Cliente',
         on_delete=models.CASCADE,
     )
     nombre = models.CharField(max_length=200,default="Sin nombre")
@@ -92,7 +92,7 @@ class Comida(models.Model):
 
 class Imagen(models.Model):
     user = models.ForeignKey(
-        'Usuario',
+        'Cliente',
         on_delete=models.CASCADE,
     )
     imagen = models.ImageField(upload_to='avatars')
@@ -108,7 +108,7 @@ class Transacciones(models.Model):
     idTransaccion = models.AutoField(primary_key=True)
     nombreComida = models.CharField(max_length=200,blank=True,null=True)
     idVendedor = models.ForeignKey(
-        'Usuario',
+        'Cliente',
         on_delete=models.CASCADE,
     )
     precio = models.IntegerField()

@@ -2,8 +2,9 @@
 
 from django import forms
 
-from .models import Usuario, Comida
+from .models import Cliente, Comida
 from django import forms
+from django.contrib.auth.models import User , Group
 
 class LoginForm(forms.Form):
    email = forms.CharField(max_length = 100)

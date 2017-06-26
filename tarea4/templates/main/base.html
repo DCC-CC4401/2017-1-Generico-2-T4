@@ -143,7 +143,81 @@
 {% block content %}
 {% endblock %}
 
+<script>
+    function EstadoActual() {
+        var estdoInicial = "{{ activo }}";
+        if (estdoInicial == "True") {
+            document.getElementById("checkbox-estado").checked = true;
+        } else {
+            document.getElementById("checkbox-estado").checked = false;
+        }
+    }
+</script>
 
+<script>
+    function switchActivo(){
+        var input = document.getElementById("checkbox-estado");
+        input.setAttribute("onChange" ,'handleChange(this);');
+        if ("{{activo}}" == "True") {
+            input.setAttribute("checked", true);
+        } else {
+            input.setAttribute("checked", false);
+        }
+    }
+</script>
+
+<script>
+    function handleChange(checkbox) {
+    if(checkbox.checked == true){
+         var datos ="id=" + "{{id}}"+"&estado=true";
+         document.getElementById("estado-desktop").classList.remove("red-text");
+         document.getElementById("estado-desktop").classList.add("light-green-text");
+         document.getElementById("estado-desktop").innerHTML = "Disponible";
+
+         document.getElementById("estado-movil").classList.remove("red-text");
+         document.getElementById("estado-movil").classList.add("light-green-text");
+         document.getElementById("estado-movil").innerHTML = "Disponible";
+         $.ajax({
+           url:{% url 'cambiarEstado' %},
+           type: "GET",
+           data: datos,
+           dataType: "json",
+
+           success: function(data) {
+           },
+           error:function(data) {
+               alert("error in getting from server")
+           },
+        });
+    }else{
+        var datos ="id=" + "{{id}}"+"&estado=false";
+        document.getElementById("estado-desktop").classList.remove("light-green-text");
+        document.getElementById("estado-desktop").classList.add("red-text");
+        document.getElementById("estado-desktop").innerHTML = "No Disponible";
+
+        document.getElementById("estado-movil").classList.remove("light-green-text");
+        document.getElementById("estado-movil").classList.add("red-text");
+        document.getElementById("estado-movil").innerHTML = "No Disponible";
+         $.ajax({
+           url:{% url 'cambiarEstado' %},
+           type: "GET",
+           data: datos,
+           dataType: "json",
+
+           success: function(data) {
+           },
+           error:function(data) {
+               alert("error in getting from server")
+           },
+        });
+   }
+}
+</script>
+
+ <script>
+    window.onload = EstadoActual();
+    window.onload = switchActivo();
+</script>
 
 </body>
 

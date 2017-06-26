@@ -7,7 +7,7 @@ from django.utils import timezone
 from .forms import LoginForm
 from .forms import GestionProductosForm
 from .forms import editarProductosForm
-from .models import Usuario
+from .models import Cliente
 from .models import Comida
 
 from .models import Imagen
@@ -30,7 +30,10 @@ def index(request):
     vendedores = []
     # lista de vendedores
     for p in User.objects.all():
-        if p.usuario.tipo == 2 or p.usuario.tipo == 3:
+        
+
+
+        if p.cliente.tipo == 2 or p.cliente.tipo == 3:
             vendedores.append(p.username)
     vendedoresJson = simplejson.dumps(vendedores)
     #actualizar vendedores fijos
@@ -69,9 +72,9 @@ def index(request):
           
             
             if estado == "activo":
-                Usuario.objects.filter(id = p.id).update(activo=1)
+                Cliente.objects.filter(id = p.id).update(activo=1)
             else:
-                Usuario.objects.filter(id =p.id).update(activo=0)
+                Cliente.objects.filter(id =p.id).update(activo=0)
 
 
 
@@ -252,32 +255,32 @@ def loginAdmin(request):
 
 def adminPOST(id,avatar,email,nombre,contraseña,request):
     #ids de todos los usuarios no admins
-    datosUsuarios = []
+    datosClientes = []
     i = 0
-    numeroUsuarios= Usuario.objects.count()
+    numeroClientes= Cliente.objects.count()
     numeroDeComidas = Comida.objects.count()
-    for usr in Usuario.objects.raw('SELECT * FROM usuario WHERE tipo != 0'):
-        datosUsuarios.append([])
-        datosUsuarios[i].append(usr.id)
-        datosUsuarios[i].append(usr.username)
-        datosUsuarios[i].append(usr.email)
-        datosUsuarios[i].append(usr.tipo)
-        datosUsuarios[i].append(str(usr.avatar))
-        datosUsuarios[i].append(usr.activo)
-        datosUsuarios[i].append(usr.formasDePago)
-        datosUsuarios[i].append(usr.horarioIni)
-        datosUsuarios[i].append(usr.horarioFin)
-        datosUsuarios[i].append(usr.contraseña)
+    for usr in Cliente.objects.raw('SELECT * FROM usuario WHERE tipo != 0'):
+        datosClientes.append([])
+        datosClientes[i].append(usr.id)
+        datosClientes[i].append(usr.username)
+        datosClientes[i].append(usr.email)
+        datosClientes[i].append(usr.tipo)
+        datosClientes[i].append(str(usr.avatar))
+        datosClientes[i].append(usr.activo)
+        datosClientes[i].append(usr.formasDePago)
+        datosClientes[i].append(usr.horarioIni)
+        datosClientes[i].append(usr.horarioFin)
+        datosClientes[i].append(usr.contraseña)
 
 
         i += 1
-    listaDeUsuarios = simplejson.dumps(datosUsuarios, ensure_ascii=False).encode('utf8')
+    listaDeClientes = simplejson.dumps(datosClientes, ensure_ascii=False).encode('utf8')
     
     
     
 
     # limpiar argumentos de salida segun tipo de vista
-    argumentos = {"nombre":nombre,"id":id,"avatar":avatar,"email":email,"lista":listaDeUsuarios,"numeroUsuarios":i,"numeroDeComidas":numeroDeComidas,"contraseña":contraseña}
+    argumentos = {"nombre":nombre,"id":id,"avatar":avatar,"email":email,"lista":listaDeClientes,"numeroClientes":i,"numeroDeComidas":numeroDeComidas,"contraseña":contraseña}
     return render(request, 'main/baseAdmin.html', argumentos)
 
 
@@ -320,7 +323,7 @@ def loginReq(request):
 
         except User.DoesNotExist:
             
-            return render(request, 'main/login.html', {"error": "Usuario o contraseña invalidos"})
+            return render(request, 'main/login.html', {"error": "Cliente o contraseña invalidos"})
 
 
         user = authenticate(username=name, password=password)
@@ -385,7 +388,7 @@ def loginReq(request):
         request.session['nombre'] = nombre
         request.session['avatar'] = str(avatar)
         # si son vendedores, crear lista de productos
-        for p in Usuario.objects.raw('SELECT * FROM usuario'):
+        for p in Cliente.objects.raw('SELECT * FROM usuario'):
             if p.tipo == 2 or p.tipo == 3:
                 vendedores.append(p.id)
         vendedoresJson = simplejson.dumps(vendedores)
@@ -481,7 +484,7 @@ def register(request):
     horaInicial = request.POST.get("horaIni")
     horaFinal = request.POST.get("horaFin")
     avatar = request.FILES.get("avatar")
-    print(avatar)
+    
     formasDePago =[]
     if not (request.POST.get("formaDePago0") is None):
         formasDePago.append(request.POST.get("formaDePago0"))
@@ -493,17 +496,19 @@ def register(request):
         formasDePago.append(request.POST.get("formaDePago3"))
 
 
-    usuario, created = User.objects.get_or_create( username=nombre, email = email)
-    
+    us = User( username = nombre, email = email)
+    us.set_password(password)
+    us.save()
 
-    if(created):
-        usuario.set_password(password)
-        usuario.save()
+    print("wwwwwwwwwwwwwwwwwwwwwwwwwwww")
+    print(us.id)
+    print(us.username)
+    print(us)
         
 
 
 
-    usuarioNuevo = Usuario.objects.create(user =usuario ,tipo=tipo,avatar=avatar,formasDePago=formasDePago,horarioIni=horaInicial,horarioFin=horaFinal)
+    usuarioNuevo = Cliente.objects.create(user =us ,tipo=tipo,avatar=avatar,formasDePago=formasDePago,horarioIni=horaInicial,horarioFin=horaFinal)
     usuarioNuevo.save()
     return loginReq(request)
 
@@ -553,7 +558,7 @@ def productoReq(request):
 
     
 
-    for p in Usuario.objects.raw('SELECT * FROM usuario'):
+    for p in Cliente.objects.raw('SELECT * FROM usuario'):
         if p.id == id:
             avatar = p.avatar
             horarioIni = p.horarioIni
@@ -632,7 +637,7 @@ def editarDatos(request):
 
 
     id_vendedor = request.POST.get("id_vendedor")
-    usuario = Usuario.objects.filter(id=id_vendedor)
+    usuario = Cliente.objects.filter(id=id_vendedor)
 
     nombre = request.POST.get("nombre")
     tipo = request.POST.get("tipo")
@@ -646,7 +651,7 @@ def editarDatos(request):
         if (not(horaFinal is None)):
             usuario.update(horarioFin=horaFinal)
             # actualizar vendedores fijos
-        for p in Usuario.objects.raw('SELECT * FROM usuario'):
+        for p in Cliente.objects.raw('SELECT * FROM usuario'):
             if p.tipo == 2:
                 hi = p.horarioIni
                 hf = p.horarioFin
@@ -705,7 +710,7 @@ def editarDatos(request):
 
 
 def redirigirEditar(id_vendedor,request):
-    for usr in Usuario.objects.raw('SELECT * FROM usuario WHERE id == "' + str(id_vendedor) +'"'):
+    for usr in Cliente.objects.raw('SELECT * FROM usuario WHERE id == "' + str(id_vendedor) +'"'):
         id = usr.id
         nombre = usr.username
         email = usr.email
@@ -762,7 +767,7 @@ def inicioAlumno(request):
     id = request.session['id']
     vendedores =[]
     # si son vendedores, crear lista de productos
-    for p in Usuario.objects.raw('SELECT * FROM usuario'):
+    for p in Cliente.objects.raw('SELECT * FROM usuario'):
         if p.id == id:
             avatar = p.avatar
         if p.tipo == 2 or p.tipo == 3:
@@ -843,9 +848,9 @@ def cambiarEstado(request):
             estado = request.GET.get('estado')
             id_vendedor = request.GET.get('id')
             if estado == "true":
-                Usuario.objects.filter(id=id_vendedor).update(activo=True)
+                Cliente.objects.filter(id=id_vendedor).update(activo=True)
             else:
-                Usuario.objects.filter(id=id_vendedor).update(activo=False)
+                Cliente.objects.filter(id=id_vendedor).update(activo=False)
             data = {"estado": estado}
             return JsonResponse(data)
 
@@ -859,7 +864,7 @@ def editarPerfilAlumno(request):
     for fav in Favoritos.objects.raw("SELECT * FROM Favoritos"):
         if id == fav.idAlumno:
             favoritos.append(fav.idVendedor)
-            vendedor = Usuario.objects.filter(id =fav.idVendedor).get()
+            vendedor = Cliente.objects.filter(id =fav.idVendedor).get()
             nombre = vendedor.username
             nombres.append(nombre)
     return render(request,'main/editar-perfil-alumno.html',{"id": id, "avatarSesion": avatar,"nombre": nombre,"favoritos": favoritos, "nombres": nombres, "nombresesion":request.session['nombre']})
@@ -896,7 +901,7 @@ def procesarPerfilAlumno(request):
             with default_storage.open('../media/avatars/' + filename, 'wb+') as destination:
                 for chunk in nuevaImagen.chunks():
                     destination.write(chunk)
-            Usuario.objects.filter(id=request.session['id']).update(avatar='/avatars/' + filename)
+            Cliente.objects.filter(id=request.session['id']).update(avatar='/avatars/' + filename)
 
         return JsonResponse({"ejemplo": "correcto"})
 
@@ -906,7 +911,7 @@ def borrarUsuario(request):
     if request.method == 'GET':
         if request.is_ajax():
             uID = request.GET.get('eliminar')
-            Usuario.objects.filter(id=uID).delete()
+            Cliente.objects.filter(id=uID).delete()
             data = {"eliminar" : uID}
             return JsonResponse(data)
 
@@ -939,16 +944,16 @@ def editarUsuarioAdmin(request):
             if (userID != None):
                 print("id:"+userID)
             if email != None:
-                Usuario.objects.filter(id=userID).update(email=email)
+                Cliente.objects.filter(id=userID).update(email=email)
                 print("cambio Mail")
             if nombre != None:
-                Usuario.objects.filter(id=userID).update(nombre=nombre)
+                Cliente.objects.filter(id=userID).update(nombre=nombre)
                 print("cambio Nombre")
             if contraseña != None:
-                Usuario.objects.filter(id=userID).update(contraseña=contraseña)
+                Cliente.objects.filter(id=userID).update(contraseña=contraseña)
                 print("cambio contraseña")
             if avatar != None:
-                Usuario.objects.filter(id=userID).update(avatar=avatar)
+                Cliente.objects.filter(id=userID).update(avatar=avatar)
                 print("cambio avatar")
 
             data = {"respuesta": userID}
@@ -1018,27 +1023,27 @@ def editarUsuario(request):
                 (3, 'Tarjeta Junaeb'),
             )
             if email != None:
-                Usuario.objects.filter(id=userID).update(email=email)
+                Cliente.objects.filter(id=userID).update(email=email)
                 print("cambio Mail")
             if nombre != None:
-                Usuario.objects.filter(id=userID).update(nombre=nombre)
+                Cliente.objects.filter(id=userID).update(nombre=nombre)
                 print("cambio Nombre")
             if contraseña != None:
-                Usuario.objects.filter(id=userID).update(contraseña=contraseña)
+                Cliente.objects.filter(id=userID).update(contraseña=contraseña)
                 print("cambio contraseña")
             if tipo != None:
-                Usuario.objects.filter(id=userID).update(tipo=tipo)
+                Cliente.objects.filter(id=userID).update(tipo=tipo)
                 print("cambio tipo")
             if avatar != None:
-                Usuario.objects.filter(id=userID).update(avatar=avatar)
+                Cliente.objects.filter(id=userID).update(avatar=avatar)
                 print("cambio avatar")
             if horaIni != None:
-                Usuario.objects.filter(id=userID).update(horarioIni=horaIni)
+                Cliente.objects.filter(id=userID).update(horarioIni=horaIni)
                 print("cambio hora ini")
             if horaFin != None:
-                Usuario.objects.filter(id=userID).update(horarioFin=horaFin)
+                Cliente.objects.filter(id=userID).update(horarioFin=horaFin)
                 print("cambio hora fin")
-            Usuario.objects.filter(id=userID).update(formasDePago=nuevaListaFormasDePago)
+            Cliente.objects.filter(id=userID).update(formasDePago=nuevaListaFormasDePago)
             print("cambio formas de pago")
 
             data = {"respuesta" : userID}
@@ -1069,7 +1074,7 @@ def registerAdmin(request):
     if(created):
         usuario.set_password(password)
 
-    usuarioNuevo = Usuario(user=usuario, tipo=tipo, avatar=avatar,
+    usuarioNuevo = Cliente(user=usuario, tipo=tipo, avatar=avatar,
                                formasDePago=formasDePago, horarioIni=horaInicial, horarioFin=horaFinal)
     usuarioNuevo.save()
     
