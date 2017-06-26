@@ -86,7 +86,7 @@ def index(request):
 
     vendedoresJson = simplejson.dumps(vendedores)
 
-    return render(request, 'main/baseAlumno-sinLogin.html', {"vendedores": vendedoresJson})
+    return render(request, 'main/index.html', {"vendedores": vendedoresJson})
 
 def loginuser(request):
     return render(request, 'main/login.html', {})
@@ -346,7 +346,7 @@ def loginReq(request):
                 contraseña = password
                 
             elif (tipo == 1):
-                url = 'main/baseAlumno.html'
+                url = 'main/index.html'
                 id = user.id
                 avatar = user.cliente.avatar
                 tipo = user.cliente.tipo
@@ -446,9 +446,9 @@ def gestionproductos(request):
         tipo = request.session['tipo']
         id = request.session['id']
         if tipo == 3:
-            path = "main/baseVAmbulante.html"
+            path = "main/index.html"
         if tipo == 2:
-            path = "main/baseVFijo.html"
+            path = "main/index.html"
     return render(request, 'main/agregar-productos.html', {"path" : path})
 
 def vendedorprofilepage(request):
@@ -462,14 +462,14 @@ def formView(request):
       if (tipo == 0):
           url = 'main/baseAdmin.html'
       elif (tipo == 1):
-          url = 'main/baseAlumno.html'
+          url = 'main/index.html'
       elif (tipo == 2):
           url = 'main/vendedor-fijo.html'
       elif (tipo == 3):
           url = 'main/vendedor-ambulante.html'
       return render(request, url, {"email" : email, "tipo" : tipo, "id": id})
    else:
-      return render(request, 'main/base.html', {})
+      return render(request, 'main/index.html', {})
 
 def logout_intent(request):
     logout(request)
@@ -522,10 +522,10 @@ def productoReq(request):
             email = request.session['email']
             tipo = request.session['tipo']
             if tipo == 3:
-                path = "main/baseVAmbulante.html"
+                path = "main/index.html"
                 url ="main/vendedor-ambulante.html"
             if tipo == 2:
-                path = "main/baseVFijo.html"
+                path = "main/index.html"
                 url = "main/vendedor-fijo.html"
             Formulario = GestionProductosForm(request.POST)
             if Formulario.is_valid():
@@ -642,7 +642,7 @@ def editarVendedor(request):
             url = 'main/editar-vendedor-ambulante.html'
         return render(request, url, argumentos)
     else:
-        return render(request, 'main/base.html', {})
+        return render(request, 'main/index.html', {})
 
 
 @csrf_exempt
@@ -793,7 +793,7 @@ def inicioAlumno(request):
         if p.cliente.tipo == 2 or p.cliente.tipo == 3:
             vendedores.append(p.id)
     vendedoresJson = simplejson.dumps(vendedores)
-    return render(request, 'main/baseAlumno.html',{"id": id,"vendedores": vendedoresJson,"avatarSesion": avatar, "nombresesion": request.session['nombre']})
+    return render(request, 'main/index.html',{"id": id,"vendedores": vendedoresJson,"avatarSesion": avatar, "nombresesion": request.session['nombre']})
 
 @csrf_exempt
 def borrarProducto(request):
@@ -904,18 +904,20 @@ def editarPerfilAlumno(request):
     nombre =request.session['nombre']
     favoritos =[]
     nombres = []
-    for fav in Favoritos.objects.raw("SELECT * FROM Favoritos"):
-        if id == fav.idAlumno:
-            favoritos.append(fav.idVendedor)
-            vendedor = Cliente.objects.filter(id =fav.idVendedor).get()
-            nombre = vendedor.username
-            nombres.append(nombre)
+    usuario = get_object_or_404(User, id=id)
+
+    for fav in usuario.cliente.favoritos.all():
+        
+        favoritos.append(fav.user.id)
+        vendedor = get_object_or_404(User, id=fav.user.id)
+        nombre = vendedor.username
+        nombres.append(nombre)
     return render(request,'main/editar-perfil-alumno.html',{"id": id, "avatarSesion": avatar,"nombre": nombre,"favoritos": favoritos, "nombres": nombres, "nombresesion":request.session['nombre']})
 
 
 def procesarPerfilAlumno(request):
     if request.method == "POST":
-        nombreOriginal = request.session['nombre']
+        nombreOriginal = request.session['id']
         nuevoNombre = request.POST.get("nombre")
         count = request.POST.get("switchs")
         aEliminar= []
@@ -928,23 +930,38 @@ def procesarPerfilAlumno(request):
         print(request.FILES)
         print(aEliminar)
 
+        usuario = get_object_or_404(User, id=nombreOriginal)
         if nuevoNombre != "":
             if User.objects.filter(username=nuevoNombre).exists():
                 data = {"respuesta": "repetido"}
                 return JsonResponse(data)
-            User.objects.filter(username=nombreOriginal).update(nombre=nuevoNombre)
+            usuario.username = nuevoNombre
+
+
 
         for i in aEliminar:
-            for fav in Favoritos.objects.raw("SELECT * FROM Favoritos"):
-                if request.session['id'] == fav.idAlumno:
-                    if int(i) == fav.idVendedor:
-                        Favoritos.objects.filter(idAlumno=request.session['id']).filter(idVendedor=int(i)).delete()
+            print("hola")
+
+            vendedor = get_object_or_404(User, id=i)
+            print("chao")
+                
+
+            usuario.cliente.favoritos.remove(vendedor.cliente)
+                
+            vendedor.cliente.favoritos.remove(usuario.cliente)
+                
+                
+            vendedor.cliente.save()
+            
         if nuevaImagen != None:
             filename = nombreOriginal + ".jpg"
             with default_storage.open('../media/avatars/' + filename, 'wb+') as destination:
                 for chunk in nuevaImagen.chunks():
                     destination.write(chunk)
-            Cliente.objects.filter(id=request.session['id']).update(avatar='/avatars/' + filename)
+            usuario.client.avatar= ('/avatars/' + filename)
+
+        usuario.save()
+        usuario.cliente.save()
 
         return JsonResponse({"ejemplo": "correcto"})
 

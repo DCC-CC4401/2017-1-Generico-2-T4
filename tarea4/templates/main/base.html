@@ -42,7 +42,7 @@
                                 <a href="{% url 'editarPerfilAlumno' %}"><i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i> </a>
                                   
                                   <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/media/{{avatarSesion}}"></a>
-                                  <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{ nombresesion }}</span></a>
+                                  <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{ user.username }}</span></a>
                                   <li><a href="{% url 'inicioAlumno' %}"><i class="material-icons">home</i>Inicio</a></li>
                                   <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
                                 </div>
