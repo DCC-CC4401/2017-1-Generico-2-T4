@@ -24,6 +24,7 @@ from django.views.decorators.csrf import csrf_exempt
 from multiselectfield import MultiSelectField
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User , Group
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
 def index(request):
@@ -38,7 +39,7 @@ def index(request):
     vendedoresJson = simplejson.dumps(vendedores)
     #actualizar vendedores fijos
     for p in User.objects.all():
-        if p.tipo == 2:
+        if p.cliente.tipo == 2:
             hi = p.horarioIni
             hf = p.horarioFin
             horai = hi[:2]
@@ -86,7 +87,7 @@ def index(request):
 
     return render(request, 'main/baseAlumno-sinLogin.html', {"vendedores": vendedoresJson})
 
-def login(request):
+def loginuser(request):
     return render(request, 'main/login.html', {})
 
 
@@ -331,37 +332,37 @@ def loginReq(request):
 
         if user is not None:
             login(request, user)
-            tipo = user.tipo
+            tipo = user.cliente.tipo
             nombre = user.username
             if (tipo == 0):
                 url = 'main/baseAdmin.html'
                 id = user.id
-                tipo = user.tipo
+                tipo = user.cliente.tipo
                 encontrado = True
-                avatar = user.avatar
-                contraseña = user.password
+                avatar = user.cliente.avatar
+                contraseña = password
                 
             elif (tipo == 1):
                 url = 'main/baseAlumno.html'
                 id = user.id
-                avatar = user.avatar
-                tipo = user.tipo
+                avatar = user.cliente.avatar
+                tipo = user.cliente.tipo
                 encontrado = True
-                avatar = user.avatar
+                avatar = user.cliente.avatar
 
                 
             elif (tipo == 2):
                 url = 'main/vendedor-fijo.html'
                 id = user.id
-                tipo = user.tipo
+                tipo = user.cliente.tipo
                 encontrado = True
-                horarioIni = user.horarioIni
-                horarioFin = user.horarioFin
+                horarioIni = user.cliente.horarioIni
+                horarioFin = user.cleinte.horarioFin
                 request.session['horarioIni'] = horarioIni
                 request.session['horarioFin'] = horarioFin
-                avatar = user.avatar
-                activo = user.activo
-                formasDePago = user.formasDePago
+                avatar = user.cliente.avatar
+                activo = user.cliente.activo
+                formasDePago = user.cliente.formasDePago
                 request.session['formasDePago'] = formasDePago
                 request.session['activo'] = activo
                 
@@ -370,9 +371,9 @@ def loginReq(request):
                 id = user.id
                 tipo = user.tipo
                 encontrado = True
-                avatar = user.avatar
-                activo = user.activo
-                formasDePago = user.formasDePago
+                avatar = user.cliente.avatar
+                activo = user.cliente.activo
+                formasDePago = user.cliente.formasDePago
                 request.session['formasDePago'] = formasDePago
                 request.session['activo'] = activo
                 
@@ -388,7 +389,7 @@ def loginReq(request):
         request.session['nombre'] = nombre
         request.session['avatar'] = str(avatar)
         # si son vendedores, crear lista de productos
-        for p in Cliente.objects.raw('SELECT * FROM usuario'):
+        for p in Cliente.objects.all():
             if p.tipo == 2 or p.tipo == 3:
                 vendedores.append(p.id)
         vendedoresJson = simplejson.dumps(vendedores)
@@ -767,10 +768,10 @@ def inicioAlumno(request):
     id = request.session['id']
     vendedores =[]
     # si son vendedores, crear lista de productos
-    for p in Cliente.objects.raw('SELECT * FROM usuario'):
+    for p in User.objects.all():
         if p.id == id:
-            avatar = p.avatar
-        if p.tipo == 2 or p.tipo == 3:
+            avatar = p.cliente.avatar
+        if p.cliente.tipo == 2 or p.cliente.tipo == 3:
             vendedores.append(p.id)
     vendedoresJson = simplejson.dumps(vendedores)
     return render(request, 'main/baseAlumno.html',{"id": id,"vendedores": vendedoresJson,"avatarSesion": avatar, "nombresesion": request.session['nombre']})
