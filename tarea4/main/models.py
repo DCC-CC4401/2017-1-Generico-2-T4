@@ -36,9 +36,11 @@ class Cliente(models.Model):
     horarioIni = models.CharField(max_length=200,blank=True,null=True)
     horarioFin = models.CharField(max_length=200,blank=True,null=True)
     favoritos = models.ManyToManyField("Cliente")
+    lat = models.FloatField(default=-33.457785)
+    lng = models.FloatField(default=-70.663808)
 
     def __str__(self):
-        return self.nombre
+        return self.user.username
 
     class Meta:
         db_table = 'Cliente'

@@ -31,18 +31,13 @@ from django.shortcuts import get_object_or_404
 def index(request):
     vendedores = []
     # lista de vendedores
-    for p in User.objects.all():
-        
 
-
-        if p.cliente.tipo == 2 or p.cliente.tipo == 3:
-            vendedores.append(p.username)
-    vendedoresJson = simplejson.dumps(vendedores)
+    #vendedoresJson = simplejson.dumps(vendedores)
     #actualizar vendedores fijos
     for p in User.objects.all():
         if p.cliente.tipo == 2:
-            hi = p.horarioIni
-            hf = p.horarioFin
+            hi = p.cliente.horarioIni
+            hf = p.cliente.horarioFin
             horai = hi[:2]
             horaf = hf[:2]
             mini = hi[3:5]
@@ -71,22 +66,24 @@ def index(request):
 
 
 
-          
-            
+
+
             if estado == "activo":
-                Cliente.objects.filter(id = p.id).update(activo=1)
+                Cliente.objects.filter(user = p).update(activo=1)
             else:
-                Cliente.objects.filter(id =p.id).update(activo=0)
+                Cliente.objects.filter(user = p).update(activo=0)
+
+    for p in User.objects.all():
+        if p.cliente.tipo == 2 or p.cliente.tipo == 3:
+            vendedores.append(p)
 
 
 
 
 
-
-
-    vendedoresJson = simplejson.dumps(vendedores)
-
-    return render(request, 'main/index.html', {"vendedores": vendedoresJson})
+    #vendedoresJson = simplejson.dumps(vendedores)
+    #print(vendedoresJson)
+    return render(request, 'main/index.html', {"vendedores": vendedores})
 
 def loginuser(request):
     return render(request, 'main/login.html', {})
