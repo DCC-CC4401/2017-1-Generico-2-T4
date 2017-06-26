@@ -572,18 +572,25 @@ def vistaVendedorPorAlumno(request, nombre_vendedor):
     productos = Comida.objects.filter(vendedor=user.cliente)
             
     favorito = 0
-    alumno = get_object_or_404(User, id=request.session['id'])
-
-    for f in alumno.cliente.favoritos.all():
-        if f.user.username == nombre_vendedor:
+    if 'id'  in request.session:
         
-            favorito = 1
+
+        alumno = get_object_or_404(User, id=request.session['id'])
+
+        for f in alumno.cliente.favoritos.all():
+            if f.user.username == nombre_vendedor:
+        
+                favorito = 1
+        avatarSesion = request.session['avatar']
     tipo = user.cliente.tipo
+    activo = user.cliente.activo
     nombre = user.username
     avatar = user.cliente.avatar
     formasDePago = user.cliente.formasDePago
     horarioIni = user.cliente.horarioIni
     horarioFin = user.cliente.horarioFin
+    url = 'main/vendedor-ambulante-vistaAlumno.html'
+    
             
     # obtener alimentos
     i = 0
@@ -598,11 +605,16 @@ def vistaVendedorPorAlumno(request, nombre_vendedor):
         listaDeProductos[i].append(producto.descripcion)
         listaDeProductos[i].append(str(producto.imagen))
         i += 1
-    avatarSesion = request.session['avatar']
+    
     listaDeProductos = simplejson.dumps(listaDeProductos, ensure_ascii=False).encode('utf8')
-    return render(request, url, {"nombre": nombre, "nombresesion":request.session['nombre'], "tipo": tipo, "id": id, "avatar" : avatar, "listaDeProductos" :listaDeProductos,"avatarSesion": avatarSesion,"favorito": favorito, "formasDePago": formasDePago, "horarioIni": horarioIni, "horarioFin" : horarioFin, })
+    
 
+    if 'id'  in request.session:
 
+        return render(request, url, {"activo": activo, "nombre": nombre, "nombresesion":request.session['nombre'], "tipo": tipo, "id": id, "avatar" : avatar, "listaDeProductos" :listaDeProductos,"avatarSesion": avatarSesion,"favorito": favorito, "formasDePago": formasDePago, "horarioIni": horarioIni, "horarioFin" : horarioFin, })
+    else:
+
+        return render(request, url, {"activo": activo , "tipo": tipo, "id": id, "listaDeProductos" :listaDeProductos, "avatar" : avatar, "formasDePago": formasDePago, "horarioIni": horarioIni, "horarioFin" : horarioFin, })
 
 
 
@@ -832,18 +844,37 @@ def editarProducto(request):
             return JsonResponse(data)
 
 def cambiarFavorito(request):
+
+    alumno = get_object_or_404(User, id=request.session['id'])
+
+    
     if request.method == "GET":
         if request.is_ajax():
             favorito = request.GET.get('favorito')
             agregar = request.GET.get('agregar')
+            
+            print(favorito)
+            vendedor = get_object_or_404(User, username=favorito)
+            
             if agregar == "si":
-                nuevoFavorito = Favoritos()
-                nuevoFavorito.idAlumno = request.session['id']
-                nuevoFavorito.idVendedor = favorito
-                nuevoFavorito.save()
+                
+
+                alumno.cliente.favoritos.add(vendedor.cliente)
+                
+                vendedor.cliente.favoritos.add(alumno.cliente)
+                
+                alumno.cliente.save()
+                vendedor.cliente.save()
+
+
+                
+                
                 respuesta = {"respuesta": "si"}
             else:
-                Favoritos.objects.filter(idAlumno=request.session['id']).filter(idVendedor=favorito).delete()
+                alumno.cliente.favoritos.remove(vendedor.cliente)
+                vendedor.cliente.favoritos.remove(alumno.cliente)
+                alumno.cliente.save()
+                vendedor.cliente.save()
                 respuesta = {"respuesta": "no"}
             return JsonResponse(respuesta)
 

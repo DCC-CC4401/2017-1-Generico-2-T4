@@ -14,8 +14,8 @@ urlpatterns = [
     url(r'^register/', views.register, name='register'),
     url(r'^loggedin/', views.loggedin, name='loggedin'),
     url(r'^productoReq/', views.productoReq, name='productoReq'),
-    url(r'^vistaVendedorPorAlumno/(?P<nombre_vendedor>\w+)$', views.vistaVendedorPorAlumno, name='vistaVendedorPorAlumno'),
-     url(r'^vistaVendedorPorAlumno/', views.vistaVendedorPorAlumno, name='vistaVendedorPorAlumno'),
+    url(r'^vendedor/(?P<nombre_vendedor>\w+)$', views.vistaVendedorPorAlumno, name='vistaVendedorPorAlumno'),
+    url(r'^vistaVendedorPorAlumno/', views.vistaVendedorPorAlumno, name='vistaVendedorPorAlumno'),
 
     url(r'^cambiarEstado/$', views.cambiarEstado,name='cambiarEstado'),
     url(r'^editarVendedor/$', views.editarVendedor,name='editarVendedor'),
