@@ -75,7 +75,11 @@ def index(request):
 
     for p in Cliente.objects.all():
         if p.tipo == 2 or p.tipo == 3:
-            vendedores.append(p)
+            if p.activo:
+                for prod in Comida.objects.filter(vendedor=p):
+                    if prod.stock > 0:
+                        vendedores.append(p)
+                        break
 
     #vendedoresJson = simplejson.dumps(vendedores)
     #print(vendedoresJson)
