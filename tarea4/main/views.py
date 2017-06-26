@@ -34,10 +34,10 @@ def index(request):
 
     #vendedoresJson = simplejson.dumps(vendedores)
     #actualizar vendedores fijos
-    for p in User.objects.all():
-        if p.cliente.tipo == 2:
-            hi = p.cliente.horarioIni
-            hf = p.cliente.horarioFin
+    for p in Cliente.objects.all():
+        if p.tipo == 2:
+            hi = p.horarioIni
+            hf = p.horarioFin
             horai = hi[:2]
             horaf = hf[:2]
             mini = hi[3:5]
@@ -73,13 +73,9 @@ def index(request):
             else:
                 Cliente.objects.filter(user = p).update(activo=0)
 
-    for p in User.objects.all():
-        if p.cliente.tipo == 2 or p.cliente.tipo == 3:
+    for p in Cliente.objects.all():
+        if p.tipo == 2 or p.tipo == 3:
             vendedores.append(p)
-
-
-
-
 
     #vendedoresJson = simplejson.dumps(vendedores)
     #print(vendedoresJson)
@@ -389,8 +385,8 @@ def loginReq(request):
         request.session['nombre'] = nombre
         request.session['avatar'] = str(avatar)
         # si son vendedores, crear lista de productos
-        for p in User.objects.all():
-            if p.cliente.tipo == 2 or p.cliente.tipo == 3:
+        for p in Cliente.objects.all():
+            if p.tipo == 2 or p.tipo == 3:
                 vendedores.append(p.id)
         vendedoresJson = simplejson.dumps(vendedores)
 
@@ -515,7 +511,7 @@ def productoReq(request):
     avatar = ""
     if request.method == "POST":
         if request.session.has_key('id'):
-            id = request.session['id']
+            sid = request.session['id']
             email = request.session['email']
             tipo = request.session['tipo']
             if tipo == 3:
@@ -527,7 +523,7 @@ def productoReq(request):
             Formulario = GestionProductosForm(request.POST)
             if Formulario.is_valid():
                 producto = Comida()
-                producto.idVendedor = id
+                producto.vendedor = Cliente.objects.get(user=User.objects.get(id=sid))
                 producto.nombre = request.POST.get("nombre")
                 producto.imagen = request.FILES.get("comida")
                 producto.precio = request.POST.get("precio")
@@ -784,10 +780,10 @@ def inicioAlumno(request):
     id = request.session['id']
     vendedores =[]
     # si son vendedores, crear lista de productos
-    for p in User.objects.all():
+    for p in Cliente.objects.all():
         if p.id == id:
-            avatar = p.cliente.avatar
-        if p.cliente.tipo == 2 or p.cliente.tipo == 3:
+            avatar = p.avatar
+        if p.tipo == 2 or p.tipo == 3:
             vendedores.append(p.id)
     vendedoresJson = simplejson.dumps(vendedores)
     return render(request, 'main/index.html',{"id": id,"vendedores": vendedoresJson,"avatarSesion": avatar, "nombresesion": request.session['nombre']})

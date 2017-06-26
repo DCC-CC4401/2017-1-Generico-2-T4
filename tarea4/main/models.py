@@ -15,14 +15,9 @@ class Cliente(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
-    
-    
     tipos = ((0, 'admin'), (1, 'alumno'), (2, 'fijo'), (3, 'ambulante'))
     tipo = models.IntegerField(choices=tipos)
     avatar = models.ImageField(upload_to = 'avatars')
-
-    
-
     contraseña = models.CharField(max_length=200)
 
     activo = models.BooleanField(default=False,blank=True)
@@ -44,11 +39,6 @@ class Cliente(models.Model):
 
     class Meta:
         db_table = 'Cliente'
-
-
-
-
-
 
 
 class Comida(models.Model):

@@ -16,28 +16,28 @@
                 var info{{ forloop.counter }} = '<div id="content">'+
                     '<div id="siteNotice">'+
                     '</div>'+
-                    '<div><p style="float: left;"><img src="../static/media/{{ vendedor.cliente.avatar }}" width="50" hspace="10"></p>'+
-                    '<h4>{{ vendedor.username}}</h4></div>'+
+                    '<div><p style="float: left;"><img src="../static/media/{{ vendedor.avatar }}" width="50" hspace="10"></p>'+
+                    '<h4>{{ vendedor}}</h4></div>'+
                     '<div id="bodyContent">'+
                     '<p><i> Formas de Pago:</i> '+
-                    {% for index in vendedor.cliente.formasDePago %}
+                    {% for index in vendedor.formasDePago %}
                         {% if forloop.counter != 1 %}
                             ', '+
                         {% endif %}
                         pagos[{{ index }}]+
                     {% endfor %}
                     '</p>'+
-                    {% if vendedor.cliente.tipo == 2 %}
-                        '<p><i>Horario:</i>{{ vendedor.cliente.horarioIni }}-{{ vendedor.cliente.horarioFin }}</p>'+
+                    {% if vendedor.tipo == 2 %}
+                        '<p><i>Horario:</i>{{ vendedor.horarioIni }}-{{ vendedor.horarioFin }}</p>'+
                     {% endif %}
-                    '<a href="{% url 'vistaVendedorPorAlumno' vendedor.username%}">Ver detalles</a> '+
+                    '<a href="{{  vendedor.username}}">Ver detalles</a> '+
                     '</div>'+
                     '</div>';
                 var infoVendedor{{ forloop.counter }} = new google.maps.InfoWindow({
                     content: info{{ forloop.counter }},
                     maxWidth: 400
                 });
-                var pos{{ forloop.counter }} = {lat: {{ vendedor.cliente.lat }}, lng: {{ vendedor.cliente.lng }} };
+                var pos{{ forloop.counter }} = {lat: {{ vendedor.lat }}, lng: {{ vendedor.lng }} };
                 var marker{{ forloop.counter }} = new google.maps.Marker({
                     position: pos{{ forloop.counter }},
                     map: map
