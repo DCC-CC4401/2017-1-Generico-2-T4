@@ -141,3 +141,5 @@ compiled/
 
 # Bak files
 *.bak
+tarea4/main/static/media/
+tarea4/main/migrations/0003_auto_20170626_1434.py
