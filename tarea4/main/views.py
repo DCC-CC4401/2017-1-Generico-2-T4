@@ -346,6 +346,7 @@ def loginReq(request):
                 encontrado = True
                 avatar = user.cliente.avatar
 
+
                 
             elif (tipo == 2):
                 url = 'main/vendedor-fijo.html'
@@ -778,10 +779,10 @@ def inicioAlumno(request):
     vendedores =[]
     # si son vendedores, crear lista de productos
     for p in Cliente.objects.all():
-        if p.id == id:
+        if p.user.id == id:
             avatar = p.avatar
         if p.tipo == 2 or p.tipo == 3:
-            vendedores.append(p.id)
+            vendedores.append(p.user.id)
     vendedoresJson = simplejson.dumps(vendedores)
     return render(request, 'main/index.html',{"id": id,"vendedores": vendedoresJson,"avatarSesion": avatar, "nombresesion": request.session['nombre']})
 
