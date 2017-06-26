@@ -30,7 +30,7 @@ class Cliente(models.Model):
     formasDePago = MultiSelectField(choices=litaFormasDePago,null=True,blank=True)
     horarioIni = models.CharField(max_length=200,blank=True,null=True)
     horarioFin = models.CharField(max_length=200,blank=True,null=True)
-    favoritos = models.ManyToManyField("Cliente")
+    favoritos = models.ManyToManyField("Cliente", blank=True)
     lat = models.FloatField(default=-33.457785)
     lng = models.FloatField(default=-70.663808)
 
