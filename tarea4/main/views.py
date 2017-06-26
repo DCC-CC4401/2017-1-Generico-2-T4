@@ -412,7 +412,7 @@ def loginReq(request):
             request.session['contraseña'] = contraseña
             return adminPOST(id, avatar, email, nombre,contraseña, request)
         if (tipo == 1):
-            argumentos = {"nombresesion": nombre,  "tipo": tipo, "id": id,"vendedores": vendedoresJson, "avatarSesion": avatar}
+            argumentos = {"nombresesion": nombre,  "tipo": tipo, "id": id,"vendedores": Cliente.objects.filter(tipo__gt=1), "avatarSesion": avatar}
         if (tipo == 2):
             request.session['listaDeProductos'] = str(listaDeProductos)
             request.session['favoritos'] = obtenerFavoritos(id)
@@ -537,7 +537,7 @@ def productoReq(request):
     # obtener alimentos en caso de que sea vendedor fijo o ambulante
     i = 0
     listaDeProductos=[]
-    for producto in Comida.objects.raw('SELECT * FROM comida WHERE idVendedor = "' + str(id) + '"'):
+    for producto in  Comida.objects.filter(vendedor=Cliente.objects.get(user=User.objects.get(id=sid))):
         listaDeProductos.append([])
         listaDeProductos[i].append(producto.nombre)
         categoria = str(producto.categorias)
@@ -549,14 +549,11 @@ def productoReq(request):
         i += 1
     listaDeProductos = simplejson.dumps(listaDeProductos, ensure_ascii=False).encode('utf8')
 
-    
-
-    for p in Cliente.objects.raw('SELECT * FROM usuario'):
-        if p.id == id:
-            avatar = p.avatar
-            horarioIni = p.horarioIni
-            horarioFin = p.horarioFin
-            nombre = p.username
+    p= Cliente.objects.get(user=User.objects.get(id=sid))
+    avatar = p.avatar
+    horarioIni = p.horarioIni
+    horarioFin = p.horarioFin
+    nombre = p.user.username
     return render(request, url, {"email": email, "tipo": tipo, "id": id, "nombre": nombre, "horarioIni": horarioIni, "horarioFin" : horarioFin, "avatar" : avatar, "listaDeProductos" : listaDeProductos})
 
 def vistaVendedorPorAlumno(request, nombre_vendedor):
