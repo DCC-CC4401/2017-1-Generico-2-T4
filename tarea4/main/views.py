@@ -7,7 +7,7 @@ from .forms import GestionProductosForm
 from .forms import editarProductosForm
 from .models import Usuario
 from .models import Comida
-from .models import Favoritos
+
 from .models import Imagen
 from .models import Transacciones
 from django.db.models import Count
@@ -21,16 +21,18 @@ from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from multiselectfield import MultiSelectField
 from django.core.files.storage import default_storage
+from django.contrib.auth.models import User , Group
+
 # Create your views here.
 def index(request):
     vendedores = []
     # lista de vendedores
-    for p in Usuario.objects.raw('SELECT * FROM usuario'):
-        if p.tipo == 2 or p.tipo == 3:
-            vendedores.append(p.id)
+    for p in User.objects.all():
+        if p.usuario.tipo == 2 or p.usuario.tipo == 3:
+            vendedores.append(p.username)
     vendedoresJson = simplejson.dumps(vendedores)
     #actualizar vendedores fijos
-    for p in Usuario.objects.raw('SELECT * FROM usuario'):
+    for p in User.objects.all():
         if p.tipo == 2:
             hi = p.horarioIni
             hf = p.horarioFin
@@ -59,10 +61,15 @@ def index(request):
                     estado = "activo"
             else:
                 estado = "inactivo"
+
+
+
+          
+            
             if estado == "activo":
-                Usuario.objects.filter(nombre = p.nombre).update(activo=1)
+                Usuario.objects.filter(id = p.id).update(activo=1)
             else:
-                Usuario.objects.filter(nombre=p.nombre).update(activo=0)
+                Usuario.objects.filter(id =p.id).update(activo=0)
 
 
 
@@ -250,7 +257,7 @@ def adminPOST(id,avatar,email,nombre,contraseña,request):
     for usr in Usuario.objects.raw('SELECT * FROM usuario WHERE tipo != 0'):
         datosUsuarios.append([])
         datosUsuarios[i].append(usr.id)
-        datosUsuarios[i].append(usr.nombre)
+        datosUsuarios[i].append(usr.username)
         datosUsuarios[i].append(usr.email)
         datosUsuarios[i].append(usr.tipo)
         datosUsuarios[i].append(str(usr.avatar))
@@ -300,54 +307,70 @@ def loginReq(request):
     #buscar vendedor en base de datos
     MyLoginForm = LoginForm(request.POST)
     if MyLoginForm.is_valid():
-        vendedores = []
-        for p in Usuario.objects.raw('SELECT * FROM usuario'):
-            if p.contraseña == password and p.email == email:
-                tipo = p.tipo
-                nombre = p.nombre
-                if (tipo == 0):
-                    url = 'main/baseAdmin.html'
-                    id = p.id
-                    tipo = p.tipo
-                    encontrado = True
-                    avatar = p.avatar
-                    contraseña = p.contraseña
-                    break
-                elif (tipo == 1):
-                    url = 'main/baseAlumno.html'
-                    id = p.id
-                    avatar = p.avatar
-                    tipo = p.tipo
-                    encontrado = True
-                    avatar = p.avatar
 
-                    break
-                elif (tipo == 2):
-                    url = 'main/vendedor-fijo.html'
-                    id = p.id
-                    tipo = p.tipo
-                    encontrado = True
-                    horarioIni = p.horarioIni
-                    horarioFin = p.horarioFin
-                    request.session['horarioIni'] = horarioIni
-                    request.session['horarioFin'] = horarioFin
-                    avatar = p.avatar
-                    activo = p.activo
-                    formasDePago = p.formasDePago
-                    request.session['formasDePago'] = formasDePago
-                    request.session['activo'] = activo
-                    break
-                elif (tipo == 3):
-                    url = 'main/vendedor-ambulante.html'
-                    id = p.id
-                    tipo = p.tipo
-                    encontrado = True
-                    avatar = p.avatar
-                    activo = p.activo
-                    formasDePago = p.formasDePago
-                    request.session['formasDePago'] = formasDePago
-                    request.session['activo'] = activo
-                    break
+
+        vendedores = []
+
+
+        try:
+            
+            name = User.objects.get(email=email).username
+
+        except User.DoesNotExist:
+            
+            return render(request, 'main/login.html', {"error": "Usuario o contraseña invalidos"})
+
+
+        user = authenticate(username=name, password=password)
+        
+
+        if user is not None:
+            login(request, user)
+            tipo = user.tipo
+            nombre = user.username
+            if (tipo == 0):
+                url = 'main/baseAdmin.html'
+                id = user.id
+                tipo = user.tipo
+                encontrado = True
+                avatar = user.avatar
+                contraseña = user.password
+                
+            elif (tipo == 1):
+                url = 'main/baseAlumno.html'
+                id = user.id
+                avatar = user.avatar
+                tipo = user.tipo
+                encontrado = True
+                avatar = user.avatar
+
+                
+            elif (tipo == 2):
+                url = 'main/vendedor-fijo.html'
+                id = user.id
+                tipo = user.tipo
+                encontrado = True
+                horarioIni = user.horarioIni
+                horarioFin = user.horarioFin
+                request.session['horarioIni'] = horarioIni
+                request.session['horarioFin'] = horarioFin
+                avatar = user.avatar
+                activo = user.activo
+                formasDePago = user.formasDePago
+                request.session['formasDePago'] = formasDePago
+                request.session['activo'] = activo
+                
+            elif (tipo == 3):
+                url = 'main/vendedor-ambulante.html'
+                id = user.id
+                tipo = user.tipo
+                encontrado = True
+                avatar = user.avatar
+                activo = user.activo
+                formasDePago = user.formasDePago
+                request.session['formasDePago'] = formasDePago
+                request.session['activo'] = activo
+                
 
         #si no se encuentra el usuario, se retorna a pagina de login
         if encontrado==False:
@@ -445,6 +468,10 @@ def logout(request):
     return index(request)
 
 def register(request):
+    
+
+
+
     tipo = request.POST.get("tipo")
     nombre = request.POST.get("nombre")
     email = request.POST.get("email")
@@ -462,7 +489,19 @@ def register(request):
         formasDePago.append(request.POST.get("formaDePago2"))
     if not (request.POST.get("formaDePago3") is None):
         formasDePago.append(request.POST.get("formaDePago3"))
-    usuarioNuevo = Usuario(nombre=nombre,email=email,tipo=tipo,contraseña=password,avatar=avatar,formasDePago=formasDePago,horarioIni=horaInicial,horarioFin=horaFinal)
+
+
+    usuario, created = User.objects.get_or_create( username=nombre, email = email)
+    
+
+    if(created):
+        usuario.set_password(password)
+        usuario.save()
+        
+
+
+
+    usuarioNuevo = Usuario.objects.create(user =usuario ,tipo=tipo,avatar=avatar,formasDePago=formasDePago,horarioIni=horaInicial,horarioFin=horaFinal)
     usuarioNuevo.save()
     return loginReq(request)
 
@@ -510,40 +549,37 @@ def productoReq(request):
         i += 1
     listaDeProductos = simplejson.dumps(listaDeProductos, ensure_ascii=False).encode('utf8')
 
+    
+
     for p in Usuario.objects.raw('SELECT * FROM usuario'):
         if p.id == id:
             avatar = p.avatar
             horarioIni = p.horarioIni
             horarioFin = p.horarioFin
-            nombre = p.nombre
+            nombre = p.username
     return render(request, url, {"email": email, "tipo": tipo, "id": id, "nombre": nombre, "horarioIni": horarioIni, "horarioFin" : horarioFin, "avatar" : avatar, "listaDeProductos" : listaDeProductos})
 
-def vistaVendedorPorAlumno(request):
-    if request.method == 'POST':
-        id = int(request.POST.get("id"))
-        for p in Usuario.objects.raw('SELECT * FROM usuario'):
-            if p.id == id:
-                favorito = 0
-                for f in Favoritos.objects.raw('SELECT * FROM Favoritos'):
-                    if request.session['id'] == f.idAlumno:
-                        if id == f.idVendedor:
-                            favorito = 1
-                tipo = p.tipo
-                nombre = p.nombre
-                avatar = p.avatar
-                formasDePago = p.formasDePago
-                horarioIni = p.horarioIni
-                horarioFin = p.horarioFin
-                if tipo == 3:
-                    url = 'main/vendedor-ambulante-vistaAlumno.html'
-                    break
-                if tipo == 2:
-                    url = 'main/vendedor-fijo-vistaAlumno.html'
-                    break
+def vistaVendedorPorAlumno(request, nombre_vendedor):
+    
+    user = get_object_or_404(User, username=nombre_vendedor)
+    productos = Producto.objects.filter(vendedor=user.usuario)
+            
+    favorito = 0
+    for f in Favoritos.objects.raw('SELECT * FROM Favoritos'):
+        if request.session['id'] == f.idAlumno:
+            if id == f.idVendedor:
+                    favorito = 1
+    tipo = user.usuario.tipo
+    nombre = user.usuario.username
+    avatar = user.usuario.avatar
+    formasDePago = user.usuario.formasDePago
+    horarioIni = user.usuario.horarioIni
+    horarioFin = user.usuario.horarioFin
+            
     # obtener alimentos
     i = 0
     listaDeProductos = []
-    for producto in Comida.objects.raw('SELECT * FROM comida WHERE idVendedor = "' + str(id) + '"'):
+    for producto in productos:
         listaDeProductos.append([])
         listaDeProductos[i].append(producto.nombre)
         categoria = str(producto.categorias)
@@ -557,39 +593,7 @@ def vistaVendedorPorAlumno(request):
     listaDeProductos = simplejson.dumps(listaDeProductos, ensure_ascii=False).encode('utf8')
     return render(request, url, {"nombre": nombre, "nombresesion":request.session['nombre'], "tipo": tipo, "id": id, "avatar" : avatar, "listaDeProductos" :listaDeProductos,"avatarSesion": avatarSesion,"favorito": favorito, "formasDePago": formasDePago, "horarioIni": horarioIni, "horarioFin" : horarioFin, })
 
-def vistaVendedorPorAlumnoSinLogin(request):
-    if request.method == 'POST':
-        id = int(request.POST.get("id"))
-        for p in Usuario.objects.raw('SELECT * FROM usuario'):
-            if p.id == id:
-                tipo = p.tipo
-                nombre = p.nombre
-                avatar = p.avatar
-                formasDePago = p.formasDePago
-                horarioIni = p.horarioIni
-                horarioFin = p.horarioFin
-                activo = p.activo
-                if tipo == 3:
-                    url = 'main/vendedor-ambulante-vistaAlumno-sinLogin.html'
-                    break
-                if tipo == 2:
-                    url = 'main/vendedor-fijo-vistaAlumno-sinLogin.html'
-                    break
-                    # obtener alimentos
-    i = 0
-    listaDeProductos = []
-    for producto in Comida.objects.raw('SELECT * FROM comida WHERE idVendedor = "' + str(id) + '"'):
-        listaDeProductos.append([])
-        listaDeProductos[i].append(producto.nombre)
-        categoria = str(producto.categorias)
-        listaDeProductos[i].append(categoria)
-        listaDeProductos[i].append(producto.stock)
-        listaDeProductos[i].append(producto.precio)
-        listaDeProductos[i].append(producto.descripcion)
-        listaDeProductos[i].append(str(producto.imagen))
-        i += 1
-    listaDeProductos = simplejson.dumps(listaDeProductos, ensure_ascii=False).encode('utf8')
-    return render(request, url, {"nombre": nombre, "tipo": tipo, "id": id,"avatar" : avatar, "listaDeProductos" :listaDeProductos, "formasDePago": formasDePago,  "horarioIni": horarioIni, "horarioFin" : horarioFin, "activo" : activo})
+
 
 
 
@@ -670,9 +674,9 @@ def editarDatos(request):
                 else:
                     estado = "inactivo"
                 if estado == "activo":
-                    Usuario.objects.filter(nombre=p.nombre).update(activo=1)
+                    User.objects.filter(username=p.username).update(activo=1)
                 else:
-                    Usuario.objects.filter(nombre=p.nombre).update(activo=0)
+                    User.objects.filter(username=p.username).update(activo=0)
     avatar = request.FILES.get("avatar")
     formasDePago = ""
     if not (request.POST.get("formaDePago0") is None) and request.POST.get("formaDePago0")!="":
@@ -701,7 +705,7 @@ def editarDatos(request):
 def redirigirEditar(id_vendedor,request):
     for usr in Usuario.objects.raw('SELECT * FROM usuario WHERE id == "' + str(id_vendedor) +'"'):
         id = usr.id
-        nombre = usr.nombre
+        nombre = usr.username
         email = usr.email
         tipo = usr.tipo
         avatar = usr.avatar
@@ -854,7 +858,7 @@ def editarPerfilAlumno(request):
         if id == fav.idAlumno:
             favoritos.append(fav.idVendedor)
             vendedor = Usuario.objects.filter(id =fav.idVendedor).get()
-            nombre = vendedor.nombre
+            nombre = vendedor.username
             nombres.append(nombre)
     return render(request,'main/editar-perfil-alumno.html',{"id": id, "avatarSesion": avatar,"nombre": nombre,"favoritos": favoritos, "nombres": nombres, "nombresesion":request.session['nombre']})
 
@@ -875,10 +879,10 @@ def procesarPerfilAlumno(request):
         print(aEliminar)
 
         if nuevoNombre != "":
-            if Usuario.objects.filter(nombre=nuevoNombre).exists():
+            if User.objects.filter(username=nuevoNombre).exists():
                 data = {"respuesta": "repetido"}
                 return JsonResponse(data)
-            Usuario.objects.filter(nombre=nombreOriginal).update(nombre=nuevoNombre)
+            User.objects.filter(username=nombreOriginal).update(nombre=nuevoNombre)
 
         for i in aEliminar:
             for fav in Favoritos.objects.raw("SELECT * FROM Favoritos"):
@@ -1056,7 +1060,14 @@ def registerAdmin(request):
         formasDePago.append(request.POST.get("formaDePago2"))
     if not (request.POST.get("formaDePago3") is None):
         formasDePago.append(request.POST.get("formaDePago3"))
-    usuarioNuevo = Usuario(nombre=nombre, email=email, tipo=tipo, contraseña=password, avatar=avatar,
+
+
+    usuario, created = User.objects.get_or_create(username=nombre,email = email)
+
+    if(created):
+        usuario.set_password(password)
+
+    usuarioNuevo = Usuario(user=usuario, tipo=tipo, avatar=avatar,
                                formasDePago=formasDePago, horarioIni=horaInicial, horarioFin=horaFinal)
     usuarioNuevo.save()
     
@@ -1067,7 +1078,7 @@ def verificarEmail(request):
     if request.is_ajax() or request.method == 'POST':
         email = request.POST.get("email")
         print(email)
-        if Usuario.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             data = {"respuesta": "repetido"}
             return JsonResponse(data)
         else:

@@ -2,17 +2,23 @@ from django.db import models
 from multiselectfield import MultiSelectField
 from django.utils import timezone
 from django.utils.formats import get_format
+from django.contrib.auth.models import User , Group
 
 # Create your models here
 
 class Usuario(models.Model):
-    id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=200)
-    email = models.CharField(max_length=200)
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+    
+    
     tipos = ((0, 'admin'), (1, 'alumno'), (2, 'fijo'), (3, 'ambulante'))
     tipo = models.IntegerField(choices=tipos)
     avatar = models.ImageField(upload_to = 'avatars')
-    contraseña = models.CharField(max_length=200)
+    
     activo = models.BooleanField(default=False,blank=True)
     litaFormasDePago = (
         (0, 'Efectivo'),
@@ -23,6 +29,7 @@ class Usuario(models.Model):
     formasDePago = MultiSelectField(choices=litaFormasDePago,null=True,blank=True)
     horarioIni = models.CharField(max_length=200,blank=True,null=True)
     horarioFin = models.CharField(max_length=200,blank=True,null=True)
+    favoritos = models.ManyToManyField("Usuario")
 
     def __str__(self):
         return self.nombre
@@ -33,9 +40,15 @@ class Usuario(models.Model):
 
 
 
+
+
+
 class Comida(models.Model):
-    idVendedor = models.IntegerField(default=0);
-    nombre = models.CharField(max_length=200,primary_key=True)
+    vendedor = models.ForeignKey(
+        'Usuario',
+        on_delete=models.CASCADE,
+    )
+    nombre = models.CharField(max_length=200,default="Sin nombre")
     listaCategorias = (
         (0, 'Cerdo'),
         (1, 'Chino'),
@@ -68,24 +81,18 @@ class Comida(models.Model):
         db_table = 'Comida'
 
 
-class Favoritos(models.Model):
-    id = models.AutoField(primary_key=True)
-    idAlumno = models.IntegerField()
-    idVendedor = models.IntegerField()
 
-    def __str__(self):
-        return self.idAlumno
-
-    class Meta:
-        db_table = 'Favoritos'
 
 
 class Imagen(models.Model):
-    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(
+        'Usuario',
+        on_delete=models.CASCADE,
+    )
     imagen = models.ImageField(upload_to='avatars')
 
     def __str__(self):
-        return self.id
+        return self.user
 
     class Meta:
         db_table = 'imagen'
@@ -94,7 +101,10 @@ class Transacciones(models.Model):
     my_formats = get_format('DATETIME_INPUT_FORMATS')
     idTransaccion = models.AutoField(primary_key=True)
     nombreComida = models.CharField(max_length=200,blank=True,null=True)
-    idVendedor = models.IntegerField()
+    idVendedor = models.ForeignKey(
+        'Usuario',
+        on_delete=models.CASCADE,
+    )
     precio = models.IntegerField()
     fechaAhora = str(timezone.now()).split(' ', 1)[0]
     fecha = models.CharField(max_length=200,default=fechaAhora)
