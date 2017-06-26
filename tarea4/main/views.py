@@ -387,7 +387,7 @@ def loginReq(request):
         # si son vendedores, crear lista de productos
         for p in Cliente.objects.all():
             if p.tipo == 2 or p.tipo == 3:
-                vendedores.append(p.id)
+                vendedores.append(p.user.username)
         vendedoresJson = simplejson.dumps(vendedores)
 
         #obtener alimentos en caso de que sea vendedor fijo o ambulante

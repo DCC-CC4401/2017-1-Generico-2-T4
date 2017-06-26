@@ -30,7 +30,7 @@
                     {% if vendedor.tipo == 2 %}
                         '<p><i>Horario:</i>{{ vendedor.horarioIni }}-{{ vendedor.horarioFin }}</p>'+
                     {% endif %}
-                    '<a href="{{  vendedor.username}}">Ver detalles</a> '+
+                    '<a href="/vendedor/{{vendedor.user.username}}">Ver detalles</a> '+
                     '</div>'+
                     '</div>';
                 var infoVendedor{{ forloop.counter }} = new google.maps.InfoWindow({
