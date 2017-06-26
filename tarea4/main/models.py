@@ -15,14 +15,9 @@ class Cliente(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
-    
-    
     tipos = ((0, 'admin'), (1, 'alumno'), (2, 'fijo'), (3, 'ambulante'))
     tipo = models.IntegerField(choices=tipos)
     avatar = models.ImageField(upload_to = 'avatars')
-
-    
-
     contraseña = models.CharField(max_length=200)
 
     activo = models.BooleanField(default=False,blank=True)
@@ -35,7 +30,7 @@ class Cliente(models.Model):
     formasDePago = MultiSelectField(choices=litaFormasDePago,null=True,blank=True)
     horarioIni = models.CharField(max_length=200,blank=True,null=True)
     horarioFin = models.CharField(max_length=200,blank=True,null=True)
-    favoritos = models.ManyToManyField("Cliente")
+    favoritos = models.ManyToManyField("Cliente", blank=True)
     lat = models.FloatField(default=-33.457785)
     lng = models.FloatField(default=-70.663808)
 
@@ -44,11 +39,6 @@ class Cliente(models.Model):
 
     class Meta:
         db_table = 'Cliente'
-
-
-
-
-
 
 
 class Comida(models.Model):
