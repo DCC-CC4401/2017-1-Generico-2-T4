@@ -36,9 +36,9 @@
                   
                 {% if user.is_authenticated %}
                     
+                    <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{user.tipo}}</span></a>
                   
-                  
-                            {% if user.tipo == 1 %}
+                            {% if user.cliente.tipo == 1 %}
                                 <a href="{% url 'editarPerfilAlumno' %}"><i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i> </a>
                                   
                                   <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/media/{{avatarSesion}}"></a>
@@ -46,7 +46,7 @@
                                   <li><a href="{% url 'inicioAlumno' %}"><i class="material-icons">home</i>Inicio</a></li>
                                   <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
                                 </div>
-                            {% elif user.tipo == 2 %}
+                            {% elif user.cliente.tipo == 2 %}
                                 <a href="{% url 'editarVendedor' %}"><i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i></a>
                   
                                   <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
@@ -56,7 +56,7 @@
                                 <li><div class="section"></div></li>
                                 <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
                                 <li><a href="javascript:;" onclick="document.getElementById('fijoDashboard').submit();"><i class="material-icons">assessment</i>Datos de ventas</a></li>
-                            {% elif user.tipo == 3 %}
+                            {% elif user.cliente.tipo == 3 %}
                                       <a href="{% url 'editarVendedor' %}"><i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i></a>
                   
                                       <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
@@ -186,7 +186,7 @@
            success: function(data) {
            },
            error:function(data) {
-               alert("error in getting from server")
+               alert("Ahora estas Disponible")
            },
         });
     }else{
@@ -207,7 +207,7 @@
            success: function(data) {
            },
            error:function(data) {
-               alert("error in getting from server")
+               alert("Ahora estas No Disponible")
            },
         });
    }
