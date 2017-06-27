@@ -179,7 +179,7 @@
                                             for (var i = 0; i < largo; i++)  {
                                                 document.write( "<div id='modale"+(i + 1)+"' class='modal'>");
                                                 document.write("<div class='modal-content'>");
-                                                document.write("<form enctype='multipart/form-data' id='form"+i+"' class='col s12 m12' method='post' action='#' > {% csrf_token %}");
+                                                document.write("<form enctype='multipart/form-data' id='form"+i+"' class='col s12 m12' method='post' action='#'> {% csrf_token %}");
                                                 //guardar nombre original para busqueda en bdd
                                                 document.write("<div class='row'>");
                                                 document.write("<input type ='hidden' name = 'nombreOriginal' id='nombreOriginal' value = '" +productos[i][0] + "'>");
