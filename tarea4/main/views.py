@@ -520,28 +520,7 @@ def productoReq(request):
                 producto.save()
             else:
                 return render(request, 'main/agregar-productos.html', {"path" : path, "respuesta": "¡Ingrese todos los datos!"})
-
-    # obtener alimentos en caso de que sea vendedor fijo o ambulante
-    i = 0
-    listaDeProductos=[]
-    for producto in  Comida.objects.filter(vendedor=Cliente.objects.get(user=User.objects.get(id=sid))):
-        listaDeProductos.append([])
-        listaDeProductos[i].append(producto.nombre)
-        categoria = str(producto.categorias)
-        listaDeProductos[i].append(categoria)
-        listaDeProductos[i].append(producto.stock)
-        listaDeProductos[i].append(producto.precio)
-        listaDeProductos[i].append(producto.descripcion)
-        listaDeProductos[i].append(str(producto.imagen))
-        i += 1
-    listaDeProductos = simplejson.dumps(listaDeProductos, ensure_ascii=False).encode('utf8')
-
-    p= Cliente.objects.get(user=User.objects.get(id=sid))
-    avatar = p.avatar
-    horarioIni = p.horarioIni
-    horarioFin = p.horarioFin
-    nombre = p.user.username
-    return render(request, url, {"email": email, "tipo": tipo, "id": id, "nombre": nombre, "horarioIni": horarioIni, "horarioFin" : horarioFin, "avatar" : avatar, "listaDeProductos" : listaDeProductos})
+    return redirect('index')
 
 def vistaVendedorPorAlumno(request, nombre_vendedor):
     
