@@ -80,7 +80,10 @@ $(document).ready(function() {
                 <label style="text-align: center" for='password2'>Repite la contraseña</label>
               </div>
             </div>
-
+                 <label class='red-text text-accent-2 center-align' >
+                     <h6 style="text-align: center;" id="nombreError" class="card-title flow-text text-darken-4"></h6>
+                </label>
+                <div class='row'></div>
                 <label class='red-text text-accent-2 center-align' >
                      <h6 style="text-align: center;" id="emailError" class="card-title flow-text text-darken-4"></h6>
                 </label>
@@ -143,6 +146,37 @@ $(document).ready(function() {
                     else{
                         document.getElementById("registerButton").disabled = false;
                          document.getElementById("emailError").innerHTML = "";
+                    }
+
+                },
+                error:function(data) {
+               alert("error in getting from server");
+           }
+            });
+        }
+    });
+
+    formdata3 = new FormData();
+    jQuery("#nombre").on("change", function() {
+        //verificar si mail ya existe
+        var nombre = document.getElementById("nombre").value;
+        if (formdata3) {
+            formdata3.append("nom", nombre);
+
+            jQuery.ajax({
+                url: {% url 'verificarNombre' %},
+                type: "POST",
+                data: formdata3,
+                processData: false,
+                contentType: false,
+                success:function(data){
+                    if(data.respuesta=="repetido"){
+                        document.getElementById("registerButton").disabled = true;
+                        document.getElementById("nombreError").innerHTML = "Ese usuario no esta disponible";
+                    }
+                    else{
+                        document.getElementById("registerButton").disabled = false;
+                         document.getElementById("nombreError").innerHTML = "";
                     }
 
                 },

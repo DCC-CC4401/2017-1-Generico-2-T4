@@ -74,7 +74,8 @@ $(document).ready(function() {
               <div id="formasDePago" class='input-field col s12 m12'>
                   <!-- HTML con las formas de pago-->
             </div>
-
+            <input type="hidden" id="long" name="long">
+            <input type="hidden" id="lat" name="lat">
             <div class='row'>
               <div class='input-field col s12 m12'>
                 <input class='validate' type='password' name='password' id='password' required/>
@@ -89,7 +90,9 @@ $(document).ready(function() {
               </div>
             </div>
                 <div class='row'></div>
-
+                <label class='red-text text-accent-2 center-align' >
+                     <h6 style="text-align: center;" id="nombreError" class="card-title flow-text text-darken-4"></h6>
+                </label>
                 <label class='red-text text-accent-2 center-align' >
                      <h6 style="text-align: center;" id="emailError" class="card-title flow-text text-darken-4"></h6>
                 </label>
@@ -164,6 +167,38 @@ $(document).ready(function() {
     });
 
 
+    formdata3 = new FormData();
+    jQuery("#nombre").on("change", function() {
+        //verificar si mail ya existe
+        var nombre = document.getElementById("nombre").value;
+        if (formdata3) {
+            formdata3.append("nom", nombre);
+
+            jQuery.ajax({
+                url: {% url 'verificarNombre' %},
+                type: "POST",
+                data: formdata3,
+                processData: false,
+                contentType: false,
+                success:function(data){
+                    if(data.respuesta=="repetido"){
+                        document.getElementById("registerButton").disabled = true;
+                        document.getElementById("nombreError").innerHTML = "Ese usuario no esta disponible";
+                    }
+                    else{
+                        document.getElementById("registerButton").disabled = false;
+                         document.getElementById("nombreError").innerHTML = "";
+                    }
+
+                },
+                error:function(data) {
+               alert("error in getting from server");
+           }
+            });
+        }
+    });
+
+
     jQuery("#password2").on("change", function() {
         //verificar si son iguales
         var password = document.getElementById("password").value;
@@ -177,6 +212,17 @@ $(document).ready(function() {
 
     });
 
+  </script>
+        <script>
+  if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+  function showPosition(position) {
+    document.getElementById("lat").value = position.coords.latitude ;
+    document.getElementById("long").value = position.coords.longitude;
+  }
   </script>
 {% endblock %}
 
