@@ -49,7 +49,7 @@
                 <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
                 <li><a href="javascript:;" onclick="document.getElementById('adminForm').submit();"><i class="material-icons">settings</i>Editar datos</a></li>
                 <li><a href="#">Datos generales</a></li>
-                <li><a href="#"><i class="material-icons">perm_identity</i>Numero de usuarios: {{ numeroUsuarios }}</a></li>
+                <li><a href="#"><i class="material-icons">perm_identity</i>Numero de usuarios: {{numeroClientes }}</a></li>
                 <li><a href="#"><i class="material-icons">shopping_cart</i>Numero de productos: {{ numeroDeComidas }}</a></li>
             </ul>
         </div>
@@ -71,7 +71,7 @@
                     <input value="{{ contraseña }}" name="adminPassword" id="adminPassword" type="text" style="display:none;">
                     <input value="{{ id }}" name="adminId" id="adminId" type="text" style="display:none;">
                     <input value="{{ email }}" name="adminEmail" id="adminEmail" type="text" style="display:none;">
-                    <input value="{{ avatar }}" name="adminAvatar" id="adminAvatar" type="text" style="display:none;">
+                    <input value="{{ user.cliente.avatar }}" name="adminAvatar" id="adminAvatar" type="text" style="display:none;">
 
 </form>
 
@@ -407,7 +407,7 @@ function guardarUsuario(){
 
          $.ajax({
            url:{% url 'editarUsuario' %},
-           type: "get",
+           type: "GET",
            data: formulario,
            dataType: "json",
 

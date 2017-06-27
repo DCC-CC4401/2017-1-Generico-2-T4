@@ -258,28 +258,30 @@ def adminPOST(id,avatar,email,nombre,contraseña,request):
     i = 0
     numeroClientes= Cliente.objects.count()
     numeroDeComidas = Comida.objects.count()
-    for usr in Cliente.objects.raw('SELECT * FROM usuario WHERE tipo != 0'):
-        datosClientes.append([])
-        datosClientes[i].append(usr.id)
-        datosClientes[i].append(usr.username)
-        datosClientes[i].append(usr.email)
-        datosClientes[i].append(usr.tipo)
-        datosClientes[i].append(str(usr.avatar))
-        datosClientes[i].append(usr.activo)
-        datosClientes[i].append(usr.formasDePago)
-        datosClientes[i].append(usr.horarioIni)
-        datosClientes[i].append(usr.horarioFin)
-        datosClientes[i].append(usr.contraseña)
+    for usr in User.objects.all():
+        if usr.cliente.tipo != 0:
+            datosClientes.append([])
+            datosClientes[i].append(usr.id)
+            datosClientes[i].append(usr.username)
+            datosClientes[i].append(usr.email)
+            datosClientes[i].append(usr.cliente.tipo)
+            datosClientes[i].append(str(usr.cliente.avatar))
+            datosClientes[i].append(usr.cliente.activo)
+            datosClientes[i].append(usr.cliente.formasDePago)
+            datosClientes[i].append(usr.cliente.horarioIni)
+            datosClientes[i].append(usr.cliente.horarioFin)
+            datosClientes[i].append(usr.cliente.contraseña)
+            i += 1
 
 
-        i += 1
+        
     listaDeClientes = simplejson.dumps(datosClientes, ensure_ascii=False).encode('utf8')
     
     
     
-
+    
     # limpiar argumentos de salida segun tipo de vista
-    argumentos = {"nombre":nombre,"id":id,"avatar":avatar,"email":email,"lista":listaDeClientes,"numeroClientes":i,"numeroDeComidas":numeroDeComidas,"contraseña":contraseña}
+    argumentos = {"nombre":nombre,"id":id,"avatar":avatar,"email":email,"lista":listaDeClientes, "numeroClientes":i ,"numeroDeComidas":numeroDeComidas,"contraseña":contraseña}
     return render(request, 'main/baseAdmin.html', argumentos)
 
 
@@ -506,7 +508,7 @@ def register(request):
 
 
 
-    usuarioNuevo = Cliente.objects.create(user =us ,tipo=tipo,avatar=avatar,formasDePago=formasDePago,horarioIni=horaInicial,horarioFin=horaFinal)
+    usuarioNuevo = Cliente.objects.create(user =us ,contraseña =password,tipo=tipo,avatar=avatar,formasDePago=formasDePago,horarioIni=horaInicial,horarioFin=horaFinal)
     usuarioNuevo.save()
     return loginReq(request)
 
@@ -966,7 +968,8 @@ def borrarUsuario(request):
     if request.method == 'GET':
         if request.is_ajax():
             uID = request.GET.get('eliminar')
-            Cliente.objects.filter(id=uID).delete()
+            User.objects.filter(id=uID).delete()
+
             data = {"eliminar" : uID}
             return JsonResponse(data)
 
@@ -981,12 +984,18 @@ def agregarAvatar(request):
 
 
 def editarUsuarioAdmin(request):
+    
+    print ("covfefefeefefefefefefeefefefefefef")
+    
     if request.method == 'GET':
             nombre = request.GET.get("name")
             contraseña = request.GET.get('password')
             email = request.GET.get('email')
             avatar = request.GET.get('avatar')
             userID = request.GET.get('userID')
+
+            admin = get_object_or_404(User, id=userID)
+            
 
             if  (nombre!=None):
                 print ("nombre:"+nombre)
@@ -999,17 +1008,22 @@ def editarUsuarioAdmin(request):
             if (userID != None):
                 print("id:"+userID)
             if email != None:
-                Cliente.objects.filter(id=userID).update(email=email)
+                admin.email = email
                 print("cambio Mail")
             if nombre != None:
-                Cliente.objects.filter(id=userID).update(nombre=nombre)
+                admin.username = nombre
                 print("cambio Nombre")
             if contraseña != None:
-                Cliente.objects.filter(id=userID).update(contraseña=contraseña)
+                admin.set_password(contraseña)
+                admin.cliente.contraseña =contraseña
                 print("cambio contraseña")
             if avatar != None:
-                Cliente.objects.filter(id=userID).update(avatar=avatar)
+                admin.cliente.avatar = avatar
                 print("cambio avatar")
+           
+            print ("covfefefeefefefefefefeefefefefefef")
+            admin.save()
+            admin.cliente.save()
 
             data = {"respuesta": userID}
             return JsonResponse(data)
@@ -1017,6 +1031,7 @@ def editarUsuarioAdmin(request):
 
 def editarUsuario(request):
     if request.method == 'GET':
+
 
             nombre = request.GET.get("name")
             contraseña = request.GET.get('password')
@@ -1030,6 +1045,8 @@ def editarUsuario(request):
             horaIni = request.GET.get('horaIni')
             horaFin = request.GET.get('horaFin')
             userID = request.GET.get('userID')
+
+
 
             nuevaListaFormasDePago = ""
             if(nombre!=None):
@@ -1070,36 +1087,53 @@ def editarUsuario(request):
                 else:
                     nuevaListaFormasDePago += "3"
 
-
+            
+            user = get_object_or_404(User, id=userID)
+           
             litaFormasDePago = (
                 (0, 'Efectivo'),
                 (1, 'Tarjeta de Crédito'),
                 (2, 'Tarjeta de Débito'),
                 (3, 'Tarjeta Junaeb'),
             )
+            print("algosadasdasdasadsa")
             if email != None:
-                Cliente.objects.filter(id=userID).update(email=email)
+                user.email = email
                 print("cambio Mail")
             if nombre != None:
-                Cliente.objects.filter(id=userID).update(nombre=nombre)
+                user.username = nombre
+                
                 print("cambio Nombre")
             if contraseña != None:
-                Cliente.objects.filter(id=userID).update(contraseña=contraseña)
+                user.cliente.contraseña = contraseña
+                user.set_password(contraseña)
+               
                 print("cambio contraseña")
             if tipo != None:
-                Cliente.objects.filter(id=userID).update(tipo=tipo)
+                user.cliente.tipo= tipo
+                
                 print("cambio tipo")
             if avatar != None:
-                Cliente.objects.filter(id=userID).update(avatar=avatar)
+                user.cliente.avatar = avatar
+                
                 print("cambio avatar")
             if horaIni != None:
-                Cliente.objects.filter(id=userID).update(horarioIni=horaIni)
+                user.cliente.horarioIni = horaIni
+                
                 print("cambio hora ini")
             if horaFin != None:
-                Cliente.objects.filter(id=userID).update(horarioFin=horaFin)
+                user.cliente.horarioFin = horaFin
+                
                 print("cambio hora fin")
-            Cliente.objects.filter(id=userID).update(formasDePago=nuevaListaFormasDePago)
+            user.cliente.formasDePago = nuevaListaFormasDePago
             print("cambio formas de pago")
+
+            
+            user.save()
+
+            user.cliente.save()
+
+
 
             data = {"respuesta" : userID}
             return JsonResponse(data)
@@ -1128,8 +1162,9 @@ def registerAdmin(request):
 
     if(created):
         usuario.set_password(password)
+        usuario.save()
 
-    usuarioNuevo = Cliente(user=usuario, tipo=tipo, avatar=avatar,
+    usuarioNuevo = Cliente(user=usuario, tipo=tipo, contraseña= password, avatar=avatar,
                                formasDePago=formasDePago, horarioIni=horaInicial, horarioFin=horaFinal)
     usuarioNuevo.save()
     
@@ -1139,7 +1174,7 @@ def registerAdmin(request):
 def verificarEmail(request):
     if request.is_ajax() or request.method == 'POST':
         email = request.POST.get("email")
-        print(email)
+        
         if User.objects.filter(email=email).exists():
             data = {"respuesta": "repetido"}
             return JsonResponse(data)
