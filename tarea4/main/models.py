@@ -33,6 +33,7 @@ class Cliente(models.Model):
     favoritos = models.ManyToManyField("Cliente", blank=True)
     lat = models.FloatField(default=-33.457785)
     lng = models.FloatField(default=-70.663808)
+    alertaActiva = models.CharField(default="no", max_length=200)
 
     def __str__(self):
         return self.user.username

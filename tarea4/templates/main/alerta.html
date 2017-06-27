@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EnviarAlerta</title>
+</head>
+<body>
+{% block content %}
+<nav style="  position: fixed;
+                                                  top: 0;
+                                                  left: 0;
+                                                  width: 100%;
+                                                  height: 100%;
+                                                  text-align: center;
+                                                  background-color: #000;
+                                                  filter: alpha(opacity=50);
+                                                  -moz-opacity: 0.5;
+                                                  opacity: 0.5;"   ><div style="color:#555;
+                                                                                border-radius:10px;
+                                                                                font-family:Tahoma,Geneva,Arial,sans-serif;font-size:11px;
+                                                                                padding:10px 10px 10px 10px;
+                                                                                font-size:150%;
+                                                                                margin:10px;
+                                                                                text-align: center;
+                                                                                background:#ffecec no-repeat 10px 50%;
+                                                                                margin: 0;
+                                                                                position: absolute;
+                                                                                top: 50%;
+                                                                                left: 50%;
+                                                                                transform: translate(-50%, -50%);
+                                                                                border:1px solid #f5aca6;">
+Enviando alerta desde coordenadas:
+<form id = "geolocation" action ="{% url 'enviarAlerta' %}" method="POST" >
+                                    {% csrf_token %}
+                                    <input type="text" id = "lat" name="lat" value="" />
+                                    <input type="text" id = "lng" name="lng" value="" />
+                                    <input type="text" id = "time" name="time" value="" />
+
+                                    </form>
+                                    <script>
+                                        var z = document.getElementById("geolocation");
+                                        navigator.geolocation.getCurrentPosition(showPosition);
+                                        function showPosition(position) {
+                                            var x = document.getElementById("lat");
+                                            var y = document.getElementById("lng");
+                                            var t = document.getElementById("time");
+                                            x.value = position.coords.latitude;
+                                            y.value = position.coords.longitude;
+                                            t.value = new Date().toLocaleString();
+
+                                        }
+                                        setTimeout(function(){
+                                            z.submit();
+                                            }, 2000);
+                                        </script>
+    </div></nav>
+{% endblock %}
+</body>
+</html>

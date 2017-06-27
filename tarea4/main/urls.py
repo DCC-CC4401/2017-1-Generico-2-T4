@@ -39,6 +39,9 @@ urlpatterns = [
     url(r'^createTransaction/$', views.createTransaction, name='createTransaction'),
     url(r'^fijoDashboard/$', views.fijoDashboard, name='fijoDashboard'),
     url(r'^ambulanteDashboard/$', views.ambulanteDashboard, name='ambulanteDashboard'),
+    url(r'^alerta/', views.alerta, name='alerta'),
+    url(r'^enviarAlerta/', views.enviarAlerta, name='enviarAlerta'),
+    url(r'^entendido/', views.entendido, name='entendido'),
 
 
 ]
