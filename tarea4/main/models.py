@@ -27,13 +27,14 @@ class Cliente(models.Model):
         (2, 'Tarjeta de Débito'),
         (3, 'Tarjeta Junaeb'),
     )
+    alertaActiva = models.CharField(default="no", max_length=200)
     formasDePago = MultiSelectField(choices=litaFormasDePago,null=True,blank=True)
     horarioIni = models.CharField(max_length=200,blank=True,null=True)
     horarioFin = models.CharField(max_length=200,blank=True,null=True)
     favoritos = models.ManyToManyField("Cliente", blank=True)
     lat = models.FloatField(default=-33.457785)
     lng = models.FloatField(default=-70.663808)
-    alertaActiva = models.CharField(default="no", max_length=200)
+
 
     def __str__(self):
         return self.user.username

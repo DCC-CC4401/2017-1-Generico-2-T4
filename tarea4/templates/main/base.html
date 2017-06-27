@@ -1,5 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+{% if not user.cliente.alertaActiva == "no" and user.is_authenticated %}
+
+                                    <nav style="  position: fixed;
+                                                  top: 0;
+                                                  left: 0;
+                                                  width: 100%;
+                                                  height: 100%;
+                                                  text-align: center;
+                                                  background-color: #000;
+                                                  filter: alpha(opacity=50);
+                                                  -moz-opacity: 0.5;
+                                                  opacity: 0.5;"   ><div style="color:#555;
+                                                                                border-radius:10px;
+                                                                                font-family:Tahoma,Geneva,Arial,sans-serif;font-size:11px;
+                                                                                padding:10px 10px 10px 10px;
+                                                                                font-size:250%;
+                                                                                margin:10px;
+                                                                                text-align: center;
+                                                                                background:#ffecec no-repeat 10px 50%;
+                                                                                margin: 0;
+                                                                                position: absolute;
+                                                                                top: 50%;
+                                                                                left: 50%;
+                                                                                transform:translate(-50%, -50%);
+                                                                                border:1px solid #f5aca6;">¡Alerta de carabineros cerca tuyo! <br>
+                                                                                <div style = "color:#555;
+
+                                                                                                font-family:Tahoma,Geneva,Arial,sans-serif;font-size:11px;
+
+                                                                                                font-size:70%;
+
+                                                                                                text-align: center;
+                                                                                                background:#ffecec no-repeat 10px 50%;
+
+                                                                                                ">  (Enviada el {{user.cliente.alertaActiva}})</div>
+                                                                                <button onClick="location.href='{% url 'entendido' %}'">Entendido</button></div></nav>
+                                    {% else %}
+
 <head>
     <meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -45,6 +83,7 @@
                                   <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{ user.username }}</span></a>
                                   <li><a href="{% url 'inicioAlumno' %}"><i class="material-icons">home</i>Inicio</a></li>
                                   <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
+                                    <li><a href="{% url 'alerta' %}"><i class="material-icons">report_problem</i>Alerta de carabineros</a></li>
                                 </div>
                             {% elif user.cliente.tipo == 2 %}
                                 <a href="{% url 'editarVendedor' %}"><i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i></a>
@@ -77,6 +116,7 @@
                                             </label>
                                         </div>
                                     </li>
+                                    <li><a href="{% url 'alerta' %}"><i class="material-icons">report_problem</i>Alerta de carabineros</a></li>
                             {% else %}
                             
                                 <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
@@ -280,5 +320,7 @@
 </script>
 
 </body>
+{% endif %}
+
 
 </html>

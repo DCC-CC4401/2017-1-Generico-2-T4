@@ -184,8 +184,6 @@ def vendorMap(request):
                         break
     #vendedoresJson = simplejson.dumps(vendedores)
     #print(vendedoresJson)
-    p= Cliente.objects.get(user=User.objects.get(id=request.session['id']))
-    print (p.alertaActiva)
     return render(request, 'main/index.html', {"vendedores": vendedores})
 
 def loginuser(request):
@@ -1196,21 +1194,22 @@ def enviarAlerta(request):
     print (usuario.cliente.lat)
     print (usuario.cliente.lng)
     for vendedorAmbulante in Cliente.objects.filter(tipo = 3):
-        R = 6373.0
-        lat1 = radians(lat)
-        lon1 = radians(lng)
-        lat2 = radians(vendedorAmbulante.lat)
-        lon2 = radians(vendedorAmbulante.lng)
-        dlon = lon2 - lon1
-        dlat = lat2 - lat1
-        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-        c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        distance = R * c
-        print (distance)
-        if distance<= 15:
-            print (vendedorAmbulante.user.username)
-            vendedorAmbulante.alertaActiva= request.POST.get("time")
-            vendedorAmbulante.save()
+        if vendedorAmbulante.user.username != usuario.username:
+            R = 6373.0
+            lat1 = radians(lat)
+            lon1 = radians(lng)
+            lat2 = radians(vendedorAmbulante.lat)
+            lon2 = radians(vendedorAmbulante.lng)
+            dlon = lon2 - lon1
+            dlat = lat2 - lat1
+            a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+            c = 2 * atan2(sqrt(a), sqrt(1 - a))
+            distance = R * c
+            print (distance)
+            if distance<= 15:
+                print (vendedorAmbulante.user.username)
+                vendedorAmbulante.alertaActiva= request.POST.get("time")
+                vendedorAmbulante.save()
 
 
     return render(request, "main/index.html" )
