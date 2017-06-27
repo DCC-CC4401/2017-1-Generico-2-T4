@@ -10,67 +10,88 @@
           zoom: 19,
           center: beau850
         });
+        var pagos = ['Efectivo', 'Tarjeta de Crédito', 'Tarjeta de Débito', 'Tarjeta Junaeb'];
         infoWindow = new google.maps.InfoWindow;
+            {% for vendedor in vendedores %}
+                var info{{ forloop.counter }} = '<div id="content">'+
+                    '<div id="siteNotice">'+
+                    '</div>'+
+                    '<div><p style="float: left;"><img src="../static/media/{{ vendedor.avatar }}" width="50" hspace="10"></p>'+
+                    '<h4>{{ vendedor}}</h4></div>'+
+                    '<div id="bodyContent">'+
+                    '<p><i> Formas de Pago:</i> '+
+                    {% for index in vendedor.formasDePago %}
+                        {% if forloop.counter != 1 %}
+                            ', '+
+                        {% endif %}
+                        pagos[{{ index }}]+
+                    {% endfor %}
+                    '</p>'+
+                    {% if vendedor.tipo == 2 %}
+                        '<p><i>Horario:</i>{{ vendedor.horarioIni }}-{{ vendedor.horarioFin }}</p>'+
+                    {% endif %}
 
-        var info = '<div id="content">'+
-            '<div id="siteNotice">'+
-            '</div>'+
-            '<div><p style="float: left;"><img src="../static/img/AvatarVendedor4.png" width="50" hspace="10"></p>'    +
-            '<h4>Casino</h4></div>'+
-            '<p style="color:#029500;"> Disponible</p>' +
-            '<div id="bodyContent">'+
-            '<p>Vendedores de almuerzo</p>'+
-            '<p><i>Menú de hoy:</i> Lasaña</p>' +
-            '<p><i>Formas de pago:</i> Efectivo, Tarjeta de Crédito o Débito, Junaeb</p>' +
-            '<p><i>Horario:</i> 12:30-14:15</p>' +
-            '<p><input type="checkbox" class="filled-in" id="test" checked="checked" />' +
-            '<label for="test">Favorito</label></p>' +
-            '<p style="text-align: right;">Ver detalles»</p>' +
-            '</div>'+
-            '</div>';
+                    '<a href="/vendedor/{{vendedor.user.username}}">Ver detalles</a> '+
 
-        var infoVendedor = new google.maps.InfoWindow({
-          content: info,
-          maxWidth: 400
-        });
+                    '</div>'+
+                    '</div>';
+                var infoVendedor{{ forloop.counter }} = new google.maps.InfoWindow({
+                    content: info{{ forloop.counter }},
+                    maxWidth: 400
+                });
+                var pos{{ forloop.counter }} = {lat: {{ vendedor.lat }}, lng: {{ vendedor.lng }} };
+                var marker{{ forloop.counter }} = new google.maps.Marker({
+                    position: pos{{ forloop.counter }},
+                    map: map
+                });
+                marker{{ forloop.counter }}.addListener('click', function() {
+                    infoVendedor{{ forloop.counter }}.open(map, marker{{ forloop.counter }});
+                });
 
+          {% endfor %}
+            {% for vendedor in vendedores_fav %}
+                var info{{ forloop.counter }} = '<div id="content">'+
+                    '<div id="siteNotice">'+
+                    '</div>'+
+                    '<div><p style="float: left;"><img src="../static/media/{{ vendedor.avatar }}" width="50" hspace="10"></p>'+
+                    '<h4>{{ vendedor}}</h4></div>'+
+                    '<div id="bodyContent">'+
+                    '<p><i> Formas de Pago:</i> '+
+                    {% for index in vendedor.formasDePago %}
+                        {% if forloop.counter != 1 %}
+                            ', '+
+                        {% endif %}
+                        pagos[{{ index }}]+
+                    {% endfor %}
+                    '</p>'+
+                    {% if vendedor.tipo == 2 %}
+                        '<p><i>Horario:</i>{{ vendedor.horarioIni }}-{{ vendedor.horarioFin }}</p>'+
+                    {% endif %}
 
-        var marker = new google.maps.Marker({
-          position: beau850,
-          map: map
-        });
+                    '<a href="/vendedor/{{vendedor.user.username}}">Ver detalles</a> '+
 
-        var marker2 = new google.maps.Marker({
-          position: {lat: -33.457885, lng: -70.663808},
-          map: map
-        });
-
-        var marker3 = new google.maps.Marker({
-          position: {lat: -33.458085, lng: -70.663808},
-          map: map,
-          icon: '../static/img/star.png'
-        });
-
-        var marker4 = new google.maps.Marker({
-          position: {lat: -33.458158, lng: -70.663678},
-          map: map
-        });
-
-        var marker5 = new google.maps.Marker({
-          position: {lat: -33.457658, lng: -70.663778},
-          map: map
-        });
-
-        marker3.addListener('click', function() {
-            infoVendedor.open(map, marker3);
-          });
-
+                    '</div>'+
+                    '</div>';
+                var infoVendedor{{ forloop.counter }} = new google.maps.InfoWindow({
+                    content: info{{ forloop.counter }},
+                    maxWidth: 400
+                });
+                var pos{{ forloop.counter }} = {lat: {{ vendedor.lat }}, lng: {{ vendedor.lng }} };
+                var marker{{ forloop.counter }} = new google.maps.Marker({
+                    position: pos{{ forloop.counter }},
+                    map: map,
+                    icon:'../static/img/star.png'
+                });
+                marker{{ forloop.counter }}.addListener('click', function() {
+                    infoVendedor{{ forloop.counter }}.open(map, marker{{ forloop.counter }});
+                });
+            {% endfor %}
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
             var pos = {
               lat: position.coords.latitude,
               lng: position.coords.longitude
-            }
+            };
             map.setCenter(pos);
           }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
@@ -90,6 +111,6 @@
       }
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=KEY&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCF75FpZWunO_50dFetg9ZRqAwW1_m8mmQ&callback=initMap">
     </script>
 {% endblock %}

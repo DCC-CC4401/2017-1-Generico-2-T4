@@ -1,4 +1,4 @@
-{% extends 'main/baseAlumno.html' %}
+{% extends 'main/base.html' %}
 {% block content %}
 
 <script>
@@ -43,9 +43,12 @@
                         <p class="medium-small flow-text grey-text">&emsp;&emsp;&ensp;Vendedor Ambulante</p>
 
                         <!-- Horario -->
-{#                        <p class="flow-text text-darken-4" style="font-size: 0.88rem;">#}
-{#                            &emsp;&emsp;Horario: <a class="light-green-text">12:30-14:15</a>#}
-{#                        </p>#}
+                        {% if tipo == 2 %}
+                        <p class="flow-text text-darken-4" style="font-size: 0.88rem;">
+                            &ensp;Horario: <a class="light-green-text">{{horarioIni}} - {{horarioFin}}</a>
+                        </p>
+                        {% endif %}
+                       
                     </div>
 
                     <!-- Estado -->
@@ -61,6 +64,7 @@
                     </div>
 
                     <!-- Favoritos -->
+                    {% if user.is_authenticated %}
                     <div class="col s3 l2 hide-on-med-and-down center-align">
                         <div class="switch" style="margin-left: 10px;">
                             <label>
@@ -71,6 +75,9 @@
                             </label>
                         </div>
                     </div>
+                    {% endif  %}
+
+
 
                 </div>
             </div>
@@ -188,7 +195,7 @@
         var div = document.getElementById("favorito-desktop");
         var input = document.createElement("input");
         input.setAttribute("type" ,'checkbox' );
-        input.setAttribute("onchange" ,'handleChange(this);');
+        input.setAttribute("onchange" ,'handleChange2(this);');
         if ("{{favorito}}" == '1'){
             input.setAttribute("checked",true);
         }
@@ -200,7 +207,7 @@
         var div2 = document.getElementById("favorito-movil");
         var input2 = document.createElement("input");
         input2.setAttribute("type" ,'checkbox' );
-        input2.setAttribute("onchange" ,'handleChange(this);');
+        input2.setAttribute("onchange" ,'handleChange2(this);');
         if ("{{favorito}}" == '1'){
             input2.setAttribute("checked",true);
         }
@@ -211,9 +218,9 @@
     }
 </script>
 <script>
-    function handleChange(checkbox) {
+    function handleChange2(checkbox) {
     if(checkbox.checked == true){
-         var datos ="favorito=" + "{{id}}"+"&agregar=si";
+         var datos ="favorito=" + "{{nombre}}"+"&agregar=si";
          $.ajax({
            url:{% url 'cambiarFavorito' %},
            type: "GET",
@@ -227,7 +234,7 @@
            },
         });
     }else{
-        var datos ="favorito=" + "{{id}}"+"&agregar=no";
+        var datos ="favorito=" + "{{nombre}}"+"&agregar=no";
          $.ajax({
            url:{% url 'cambiarFavorito' %},
            type: "GET",

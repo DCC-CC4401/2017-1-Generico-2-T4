@@ -38,6 +38,8 @@
               </label>
             </div>
 
+            <input type="hidden" id="long" name="long">
+            <input type="hidden" id="lat" name="lat">
 
                <div class="col s10 offset-s1 center-align">{% csrf_token %}
                         <button class="btn waves-effect waves-light" type="submit" name="action">
@@ -61,4 +63,18 @@
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
+  <script>
+  if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+  function showPosition(position) {
+    document.getElementById("lat").value = position.coords.latitude ;
+    document.getElementById("long").value = position.coords.longitude;
+  }
+  </script>
+
+
+
 {% endblock %}

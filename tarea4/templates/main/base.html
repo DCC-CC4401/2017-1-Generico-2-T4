@@ -30,48 +30,160 @@
             <ul id="slide-out" class="side-nav fixed leftside-navigation ps-container ps-active-y">
                 <li>
                     <div class="userView">
-                    <i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i>
-                  <div class="background" style="height:175px;">
+                    <div class="background" style="height:175px;">
                     <img src="../static/img/background4.png">
                   </div>
-                  <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
-                  <a href="#!name"><span style="margin-left: 5%;" class="white-text name">Invitado</span></a>
-                </div>
-                </li>
-                <li><a href="{% url 'index' %}"><i class="material-icons">home</i>Inicio</a></li>
-                <li><a href="{% url 'login' %}"><i class="material-icons">account_circle</i>Iniciar Sesión</a></li>
-                <!--<li><a href=""><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>-->
-                <!--<li><div class="divider"></div></li>
-                <li><a class="subheader">Activo</a></li>
-                <li>
-                    <div class="switch" style="margin-left: 80px;">
-                        <label>
-                            No<input type="checkbox"><span class="lever"></span>Si
-                        </label>
-                    </div>
-                </li>
-                <li><a class="subheader">Filtros</a></li>
-                <li>
-                    <div class="switch" style="margin-left: 10px;">
-                        <label>
-                            <input type="checkbox"><span class="lever"></span>Sólo mostrar favoritos
-                        </label>
-                    </div>
-                </li>
-                <li>
-                    <div class="switch" style="margin-left: 10px;">
-                        <label>
-                            <input type="checkbox"><span class="lever"></span>Snacks
-                        </label>
-                    </div>
-                </li>
-                <li>
-                    <div class="switch" style="margin-left: 10px;">
-                        <label>
-                            <input type="checkbox"><span class="lever"></span>Almuerzos
-                        </label>
-                    </div>
-                </li>-->
+                  
+                {% if user.is_authenticated %}
+                    
+                    
+                  
+                            {% if user.cliente.tipo == 1 %}
+                                <a href="{% url 'editarPerfilAlumno' %}"><i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i> </a>
+                                  
+                                  <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/media/{{user.cliente.avatar}}"></a>
+                                  <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{ user.username }}</span></a>
+                                  <li><a href="{% url 'inicioAlumno' %}"><i class="material-icons">home</i>Inicio</a></li>
+                                  <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
+                                </div>
+                            {% elif user.cliente.tipo == 2 %}
+                                <a href="{% url 'editarVendedor' %}"><i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i></a>
+                  
+                                  <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
+                                  <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{nombre}}</span></a>
+                                </div>
+                                </li>
+                                <li><div class="section"></div></li>
+                                <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
+                                <li><a href="javascript:;" onclick="document.getElementById('fijoDashboard').submit();"><i class="material-icons">assessment</i>Datos de ventas</a></li>
+                            {% elif user.cliente.tipo == 3 %}
+                                      <a href="{% url 'editarVendedor' %}"><i class="material-icons right grey-text text-lighten-2" style="position: absolute; bottom: -0.5em; right: 0.5em; padding: 0 0 !important;">settings</i></a>
+                  
+                                      <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
+                                      <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{nombre}}</span></a>
+                                    </div>
+                                    </li>
+                                    <li><div class="section"></div></li>
+                                    <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
+                                    <li><a href="javascript:;" onclick="document.getElementById('ambulanteDashboard').submit();"><i class="material-icons">assessment</i>Datos de ventas</a></li>
+                                    <li><div class="divider"></div></li>
+
+                                    <!-- Boton Activo -->>
+                                    <li><a class="subheader">Activo</a></li>
+                                    <li>
+                                        <div class="switch" style="margin-left: 80px;">
+                                            <label>
+                                                No<input type="checkbox" id="checkbox-estado"><span class="lever"></span>Si
+                                            </label>
+                                        </div>
+                                    </li>
+                            {% else %}
+                            
+                                <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
+                                <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{ nombre }}</span></a>
+                                </div>
+                                </li>
+                                <li><div class="section"></div></li>
+                                <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i>Cerrar Sesión</a></li>
+                                <li><a href="javascript:;" onclick="document.getElementById('adminForm').submit();"><i class="material-icons">settings</i>Editar datos</a></li>
+                                <li><a href="#">Datos generales</a></li>
+                                <li><a href="#"><i class="material-icons">perm_identity</i>Numero de usuarios: {{ numeroUsuarios }}</a></li>
+                                <li><a href="#"><i class="material-icons">shopping_cart</i>Numero de productos: {{ numeroDeComidas }}</a></li>
+                            {% endif %}
+
+                    {% else %}
+                      <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
+                        <a href="#!name"><span style="margin-left: 5%;" class="white-text name">Invitado</span></a>
+                  <li><a href="{% url 'index' %}"><i class="material-icons">home</i>Inicio</a></li>
+                    <li><a href="{% url 'login' %}"><i class="material-icons">account_circle</i>Iniciar Sesión</a></li>
+
+
+          
+                
+                  <li><a class="subheader">Filtros</a></li>
+
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box0" name="filtro0" value="0"  />
+                  <label for="filled-in-box">Cerdo</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box1" name="filtro1" value="1"/>
+                  <label for="filled-in-box2">Chino</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box2" name="filtro2" value="2"/>
+                  <label for="filled-in-box3">Completos</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box3" name="filtro3" value="3"/>
+                  <label for="filled-in-box4">Egipcio</label>
+                  </li>
+                   <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box4" name="filtro4" value="4"/>
+                  <label for="filled-in-box5">Empanadas</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box5" name="filtro5" value="5"/>
+                  <label for="filled-in-box6">Ensalada</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box6" name="filtro6" value="6"/>
+                  <label for="filled-in-box7">Japonés</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box7" name="filtro7" value="7"/>
+                  <label for="filled-in-box8">Pan</label>
+                  </li>
+                   <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box8" name="filtro8" value="8"/>
+                  <label for="filled-in-box9">Papas Fritas</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box9" name="filtro9" value="9"/>
+                  <label for="filled-in-box10">Pasta</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box10" name="filtro10" value="10"/>
+                  <label for="filled-in-box11">Pescado</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box11" name="filtro11" value="11"/>
+                  <label for="filled-in-box12">Pollo</label>
+                  </li>
+                   <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box12" name="filtro12" value="12"/>
+                  <label for="filled-in-box13">Postres</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box13" name="filtro13" value="13"/><span class="lever"></span>
+                  <label for="filled-in-box14">Sushi</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box14" name="filtro14" value="14"/>
+                  <label for="filled-in-box15">Vacuno</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box15" name="filtro15" value="15"/>
+                  <label for="filled-in-box16">Vegano</label>
+                  </li>
+                  <li style="margin-left: 5%;">
+                  <input type="checkbox" class="filled-in" id="box16" name="filtro16" value="16"/>
+                  <label for="filled-in-box17">Vegetariano</label>
+                  </li>
+                  </div>
+                     
+
+                        </div>
+                    {% endif %}
+                
+                    
+
+                 
+
+
+
+                
+                
             </ul>
         </div>
     </nav>
@@ -82,6 +194,90 @@
 
 {% block content %}
 {% endblock %}
+
+<script>
+    function EstadoActual() {
+        var estdoInicial = "{{ activo }}";
+        if (estdoInicial == "True") {
+            document.getElementById("checkbox-estado").checked = true;
+        } else {
+            document.getElementById("checkbox-estado").checked = false;
+        }
+    }
+</script>
+
+<script>
+    function switchActivo(){
+        var input = document.getElementById("checkbox-estado");
+        input.setAttribute("onChange" ,'handleChange(this);');
+        if ("{{activo}}" == "True") {
+            input.setAttribute("checked", true);
+        } else {
+            input.setAttribute("checked", false);
+        }
+    }
+</script>
+
+<script>
+    function filter(checkbox){
+        var comida = checkbox.value
+        var filtrado = checkbox.checked
+
+    }
+</script>
+
+<script>
+    function handleChange(checkbox) {
+    if(checkbox.checked == true){
+         var datos ="id=" + "{{id}}"+"&estado=true";
+         document.getElementById("estado-desktop").classList.remove("red-text");
+         document.getElementById("estado-desktop").classList.add("light-green-text");
+         document.getElementById("estado-desktop").innerHTML = "Disponible";
+
+         document.getElementById("estado-movil").classList.remove("red-text");
+         document.getElementById("estado-movil").classList.add("light-green-text");
+         document.getElementById("estado-movil").innerHTML = "Disponible";
+         $.ajax({
+           url:{% url 'cambiarEstado' %},
+           type: "GET",
+           data: datos,
+           dataType: "json",
+
+           success: function(data) {
+           },
+           error:function(data) {
+               alert("Ahora estas Disponible")
+           },
+        });
+    }else{
+        var datos ="id=" + "{{id}}"+"&estado=false";
+        document.getElementById("estado-desktop").classList.remove("light-green-text");
+        document.getElementById("estado-desktop").classList.add("red-text");
+        document.getElementById("estado-desktop").innerHTML = "No Disponible";
+
+        document.getElementById("estado-movil").classList.remove("light-green-text");
+        document.getElementById("estado-movil").classList.add("red-text");
+        document.getElementById("estado-movil").innerHTML = "No Disponible";
+         $.ajax({
+           url:{% url 'cambiarEstado' %},
+           type: "GET",
+           data: datos,
+           dataType: "json",
+
+           success: function(data) {
+           },
+           error:function(data) {
+               alert("Ahora estas No Disponible")
+           },
+        });
+   }
+}
+</script>
+
+ <script>
+    window.onload = EstadoActual();
+    window.onload = switchActivo();
+</script>
 
 </body>
 

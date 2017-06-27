@@ -1,5 +1,5 @@
 
-
+@csrf_protect
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,7 +40,7 @@
                     <img src="../static/img/background4.png">
                   </div>
                   <a href="#!user"><img style="margin-top: 16%;" class="circle" src="../static/img/AvatarPenguin.png"></a>
-                  <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{ nombre }}</span></a>
+                  <a href="#!name"><span style="margin-left: 5%;" class="white-text name">{{ user.username }}</span></a>
                 </div>
                 </li>
                 <li><div class="section"></div></li>
@@ -73,24 +73,24 @@
             <div class="row">
                <div class="input-field col s6">
 
-                  <input placeholder="Username" value="{{ nombre }}" id="name" name="name" type="text" class="active validate" required>
+                  <input placeholder="Username" value="{{ user.username }}" id="name" name="name" type="text" class="active validate" required>
                   <label for="name">Nombre de usuario</label>
                </div>
                <div class="input-field col s6">
                   <label for="password">Contraseña actual</label>
-                  <input id="password" name="password" type="text" value="{{ contraseña }}" placeholder="Password" class="validate" required>
+                  <input id="password" name="password" type="text" value="{{ user.cliente.contraseña }}" placeholder="Password" class="validate" required>
                </div>
             </div>
              <div class="row">
                 <div class="col s6">
                      <label for="userID">ID del usuario</label>
-                     <input placeholder="Comments (Disabled)" value="{{ id }}" name="userID" id="userID" type="text" disabled>
+                     <input placeholder="Comments (Disabled)" value="{{ user.id }}" name="userID" id="userID" type="text" disabled>
                 </div>
              </div>
 
             <div class="row">
                <div class="col s6 input-field">
-                  <input placeholder="Email" name="email" id="email" value="{{ email }}" type="email" class="validate">
+                  <input placeholder="Email" name="email" id="email" value="{{ user.email }}" type="email" class="validate">
                   <label for="email">Email</label>
                </div>
             </div>
@@ -198,6 +198,7 @@ window.onload = function() {
                 data: formdata,
                 processData: false,
                 contentType: false,
+
                 success:function(){
                     alert("funciono!!");
                 },
@@ -222,8 +223,8 @@ function guardarUsuario(){
             formulario+="&"+avatar;}
 
          $.ajax({
-           url:{% url 'editarUsuario' %},
-           type: "get",
+           url:{% url 'editarUsuarioAdmin' %},
+           type: "GET",
            data: formulario,
            dataType: "json",
 
