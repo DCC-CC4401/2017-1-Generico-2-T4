@@ -130,6 +130,7 @@ def index(request):
 
 def vendorMap(request):
     vendedores=[]
+    vendedores_fav = []
     #vendedoresJson = simplejson.dumps(vendedores)
     #actualizar vendedores fijos
     for p in Cliente.objects.all():
@@ -166,8 +167,10 @@ def vendorMap(request):
             else:
                 Cliente.objects.filter(user = p).update(activo=0)
     for p in Cliente.objects.all():
-        if p.tipo == 2 or p.tipo == 3:
-            if p.activo:
+        if (p.tipo == 2 or p.tipo == 3) and p.activo:
+            if request.user.is_authenticated() and p.favoritos.all().filter(user=request.user).exists():
+                vendedores_fav.append(p)
+            else:
                 for prod in Comida.objects.filter(vendedor=p):
                     if prod.stock > 0:
                         vendedores.append(p)
