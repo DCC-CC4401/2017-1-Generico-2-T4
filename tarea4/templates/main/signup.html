@@ -74,7 +74,8 @@ $(document).ready(function() {
               <div id="formasDePago" class='input-field col s12 m12'>
                   <!-- HTML con las formas de pago-->
             </div>
-
+            <input type="hidden" id="long" name="long">
+            <input type="hidden" id="lat" name="lat">
             <div class='row'>
               <div class='input-field col s12 m12'>
                 <input class='validate' type='password' name='password' id='password' required/>
@@ -211,6 +212,17 @@ $(document).ready(function() {
 
     });
 
+  </script>
+        <script>
+  if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+  function showPosition(position) {
+    document.getElementById("lat").value = position.coords.latitude ;
+    document.getElementById("long").value = position.coords.longitude;
+  }
   </script>
 {% endblock %}
 

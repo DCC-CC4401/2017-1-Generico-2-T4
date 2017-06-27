@@ -29,6 +29,12 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 
+def RepresentsFlt(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 def index(request):
     if request.session.has_key('id'):
@@ -382,6 +388,7 @@ def loginReq(request):
     if request.session.has_key('email'):
         email = request.session['email']
         password = request.session['password']
+
         try:
             name = User.objects.get(email=email).username
         except User.DoesNotExist:
@@ -432,6 +439,12 @@ def loginReq(request):
             formasDePago = user.cliente.formasDePago
             request.session['formasDePago'] = formasDePago
             request.session['activo'] = activo
+            if(RepresentsFlt(request.POST.get('lat',""))):
+                clt = Cliente.objects.get(user=user)
+                clt.lat = float(request.POST.get('lat', ""))
+                clt.lng = float(request.POST.get('long', ""))
+                clt.save()
+
         elif (tipo == 3):
             url = 'main/vendedor-ambulante.html'
             id = user.id
@@ -442,6 +455,11 @@ def loginReq(request):
             formasDePago = user.cliente.formasDePago
             request.session['formasDePago'] = formasDePago
             request.session['activo'] = activo
+            if (RepresentsFlt(request.POST.get('lat', ""))):
+                clt = Cliente.objects.get(user=user)
+                clt.lat = float(request.POST.get('lat', ""))
+                clt.lng = float(request.POST.get('long', ""))
+                clt.save()
         # si no se encuentra el usuario, se retorna a pagina de login
     elif encontrado == False:
         request.session['error'] = {"error": "Cliente o contraseña invalidos"}
@@ -484,6 +502,7 @@ def register(request):
     horaFinal = request.POST.get("horaFin")
     avatar = request.FILES.get("avatar")
     formasDePago =[]
+
     if not (request.POST.get("formaDePago0") is None):
         formasDePago.append(request.POST.get("formaDePago0"))
     if not (request.POST.get("formaDePago1") is None):
@@ -494,6 +513,10 @@ def register(request):
         formasDePago.append(request.POST.get("formaDePago3"))
     us = User( username = nombre, email = email)
     us.set_password(password)
+    if (RepresentsFlt(request.POST.get('lat', ""))):
+        us.lat = float(request.POST.get('lat', ""))
+        us.lng = float(request.POST.get('long', ""))
+        us.save()
     us.save()
 
 
