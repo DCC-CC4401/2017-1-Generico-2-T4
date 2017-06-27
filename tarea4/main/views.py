@@ -532,28 +532,7 @@ def productoReq(request):
                 producto.save()
             else:
                 return render(request, 'main/agregar-productos.html', {"path" : path, "respuesta": "¡Ingrese todos los datos!"})
-
-    # obtener alimentos en caso de que sea vendedor fijo o ambulante
-    i = 0
-    listaDeProductos=[]
-    for producto in  Comida.objects.filter(vendedor=Cliente.objects.get(user=User.objects.get(id=sid))):
-        listaDeProductos.append([])
-        listaDeProductos[i].append(producto.nombre)
-        categoria = str(producto.categorias)
-        listaDeProductos[i].append(categoria)
-        listaDeProductos[i].append(producto.stock)
-        listaDeProductos[i].append(producto.precio)
-        listaDeProductos[i].append(producto.descripcion)
-        listaDeProductos[i].append(str(producto.imagen))
-        i += 1
-    listaDeProductos = simplejson.dumps(listaDeProductos, ensure_ascii=False).encode('utf8')
-
-    p= Cliente.objects.get(user=User.objects.get(id=sid))
-    avatar = p.avatar
-    horarioIni = p.horarioIni
-    horarioFin = p.horarioFin
-    nombre = p.user.username
-    return render(request, url, {"email": email, "tipo": tipo, "id": id, "nombre": nombre, "horarioIni": horarioIni, "horarioFin" : horarioFin, "avatar" : avatar, "listaDeProductos" : listaDeProductos})
+    return redirect('index')
 
 def vistaVendedorPorAlumno(request, nombre_vendedor):
     
@@ -578,6 +557,12 @@ def vistaVendedorPorAlumno(request, nombre_vendedor):
     formasDePago = user.cliente.formasDePago
     horarioIni = user.cliente.horarioIni
     horarioFin = user.cliente.horarioFin
+    if(user.cliente.tipo==2):
+        now = timezone.now()
+        if(horarioFin>now and horarioIni<now ):
+            activo = True
+        else:
+            activo = False
     url = 'main/vendedor-ambulante-vistaAlumno.html'
     
             
@@ -638,7 +623,7 @@ def editarVendedor(request):
 def editarDatos(request):
     id_vendedor = request.POST.get("id_vendedor")
     usuario = get_object_or_404(User, id=id_vendedor)
-
+    cliente = get_object_or_404(Cliente, user = usuario)
     nombre = request.POST.get("nombre")
     tipo = request.POST.get("tipo")
 
@@ -647,9 +632,9 @@ def editarDatos(request):
         horaFinal = request.POST.get("horaFin")
         print(tipo, horaInicial, horaFinal)
         if (not(horaInicial is None)):
-            usuario.cliente.update(horarioIni=horaInicial)
+            cliente.horarioIni = horaInicial
         if (not(horaFinal is None)):
-            usuario.cliente.update(horarioFin=horaFinal)
+            cliente.horarioFin = horaFinal
             # actualizar vendedores fijos
         for p in Cliente.objects.all():
             if p.tipo == 2:
@@ -660,6 +645,11 @@ def editarDatos(request):
                 mini = hi[3:5]
                 minf = hf[3:5]
                 print(datetime.datetime.now().time())
+                tiempo = str(datetime.datetime.now().time())
+                print(tiempo)
+                hora = tiempo[:2]
+                minutos = tiempo[3:5]
+                estado = ""
                 tiempo = str(datetime.datetime.now().time())
                 print(tiempo)
                 hora = tiempo[:2]
@@ -681,9 +671,9 @@ def editarDatos(request):
                 else:
                     estado = "inactivo"
                 if estado == "activo":
-                    User.objects.filter(username=p.username).update(activo=1)
+                    Cliente.objects.filter(user=p).update(activo=1)
                 else:
-                    User.objects.filter(username=p.username).update(activo=0)
+                    Cliente.objects.filter(user=p).update(activo=0)
     avatar = request.FILES.get("avatar")
     formasDePago = ""
     if not (request.POST.get("formaDePago0") is None) and request.POST.get("formaDePago0")!="":
@@ -699,75 +689,17 @@ def editarDatos(request):
         usuario.username = nombre
         
     if (formasDePago != ""):
-        usuario.cliente.formasDePago = formasDePago[:-1]
+        cliente.formasDePago = formasDePago[:-1]
 
     if (avatar is not None and avatar!=""):
         with default_storage.open('../media/avatars/' + str(avatar), 'wb+') as destination:
             for chunk in avatar.chunks():
                 destination.write(chunk)
-        usuario.cliente.update(avatar='/avatars/'+ str(avatar))
-
-
-    usuario.cliente.save()
+        cliente.avatar ='/avatars/'+ str(avatar)
     usuario.save()
-    return redirigirEditar(id_vendedor, request)
-
-
-def redirigirEditar(id_vendedor,request):
-    for usr in User.objects.filter(id = id_vendedor ):
-        
-        id = usr.id
-        nombre = usr.username
-        email = usr.email
-        tipo = usr.cliente.tipo
-        avatar = usr.cliente.avatar
-        activo = usr.cliente.activo
-        formasDePago = usr.cliente.formasDePago
-        horarioIni = usr.cliente.horarioIni
-        horarioFin = usr.cliente.horarioFin
-        favoritos = obtenerFavoritos(id_vendedor)
-
-        request.session['id'] = id
-        request.session['nombre'] = nombre
-        request.session['formasDePago'] = formasDePago
-        request.session['avatar'] = str(avatar)
-        request.session['tipo'] = tipo
-        request.session['activo'] = activo
-        request.session['horarioIni'] = horarioIni
-        request.session['horarioFin'] = horarioFin
-        request.session['favoritos'] = favoritos
-
-        listaDeProductos = []
-        i = 0
-        url = ''
-        argumentos = {}
-        productos = Comida.objects.filter(vendedor= usr.cliente)
-        for producto in productos:
-            listaDeProductos.append([])
-            listaDeProductos[i].append(producto.nombre)
-            categoria = str(producto.categorias)
-            listaDeProductos[i].append(categoria)
-            listaDeProductos[i].append(producto.stock)
-            listaDeProductos[i].append(producto.precio)
-            listaDeProductos[i].append(producto.descripcion)
-            listaDeProductos[i].append(str(producto.imagen))
-            i += 1
-
-        listaDeProductos = simplejson.dumps(listaDeProductos,ensure_ascii=False).encode('utf8')
-        request.session['listaDeProductos'] = str(listaDeProductos)
-        if (tipo == 2):
-            url = 'main/vendedor-fijo.html'
-            argumentos = {"nombre": nombre, "tipo": tipo, "id": id, "horarioIni": horarioIni, "horarioFin": horarioFin,
-                          "avatar": avatar, "listaDeProductos": listaDeProductos, "activo": activo,
-                          "formasDePago": formasDePago, "favoritos": favoritos}
-        elif (tipo == 3):
-            url = 'main/vendedor-ambulante.html'
-            argumentos = {"nombre": nombre, "tipo": tipo, "id": id, "avatar": avatar,
-                          "listaDeProductos": listaDeProductos,
-                          "activo": activo, "formasDePago": formasDePago, "favoritos": favoritos}
-        
-        return render(request, url, argumentos)
-
+    cliente.save()
+    request.session['nombre'] = nombre
+    return redirect('index')
 
 def inicioAlumno(request):
     id = request.session['id']
