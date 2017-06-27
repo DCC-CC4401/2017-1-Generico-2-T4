@@ -548,9 +548,9 @@ def vistaVendedorPorAlumno(request, nombre_vendedor):
     if(user.cliente.tipo==2):
         now = timezone.now()
         if(horarioFin>now and horarioIni<now ):
-            activo = False
-        else:
             activo = True
+        else:
+            activo = False
     url = 'main/vendedor-ambulante-vistaAlumno.html'
     
             
